@@ -40,9 +40,9 @@ elseif(${CMAKE_C_COMPILER_ID} MATCHES "Sun")
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -xc99")
 endif(CMAKE_COMPILER_IS_GNUCC)
 
-if(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
-  set(GKlib_COPTIONS "${GKlib_COPTIONS} -xHost")
-#  set(GKlib_COPTIONS "${GKlib_COPTIONS} -fast")
+# Intel compiler
+if(${CMAKE_C_COMPILER_ID} MATCHES "Intel")
+  set(GKlib_COPTIONS "${GKlib_COPTIONS} -xHost -std=c99")
 endif()
 
 # Find OpenMP if it is requested.
