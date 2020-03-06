@@ -4,7 +4,7 @@
 
 \date   Started 3/27/2007
 \author George
-\version\verbatim $Id: gk_defs.h 21012 2017-05-19 03:05:23Z karypis $ \endverbatim
+\version\verbatim $Id: gk_defs.h 22039 2018-05-26 16:34:48Z karypis $ \endverbatim
 */
 
 #ifndef _GK_DEFS_H_
@@ -77,5 +77,11 @@
 
 #define GK_GRAPH_FMT_METIS      1
 #define GK_GRAPH_FMT_IJV        2
+#define GK_GRAPH_FMT_HIJV       3
+
+#define GK_GRAPH_SYM_SUM        1
+#define GK_GRAPH_SYM_MIN        2
+#define GK_GRAPH_SYM_MAX        3
+#define GK_GRAPH_SYM_AVG        4
 
 #endif

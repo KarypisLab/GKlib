@@ -4,7 +4,7 @@
 
 \date   Started 3/27/2007
 \author George
-\version\verbatim $Id: gk_struct.h 21032 2017-05-23 02:49:02Z karypis $ \endverbatim
+\version\verbatim $Id: gk_struct.h 21988 2018-04-16 00:11:19Z karypis $ \endverbatim
 */
 
 #ifndef _GK_STRUCT_H_
@@ -243,7 +243,8 @@ typedef struct gk_mop_t {
 
 
 /*************************************************************************/
-/*! The following structure stores information used by Metis */
+/*! The following structure defines the mcore for GKlib's customized
+    memory allocations. */
 /*************************************************************************/
 typedef struct gk_mcore_t {
   /* Workspace information */
@@ -269,6 +270,27 @@ typedef struct gk_mcore_t {
 
 } gk_mcore_t;
 
+
+/*************************************************************************/
+/*! The following structure is used for cache simulation for performance
+    modeling and analysis. */
+/*************************************************************************/
+typedef struct gk_cache_t {
+  /*! The total cache is nway*(2^(cnbits+lnbits)) bytes */
+  uint32_t nway;        /*!< the associativity of the cache */
+  uint32_t lnbits;      /*!< the number of address bits indexing the cache line */
+  uint32_t cnbits;      /*!< the number of address bits indexing the cache */
+  size_t csize;         /*!< 2^cnbits */
+  size_t cmask;         /*!< csize-1 */
+
+  uint64_t clock;       /*!< a clock in terms of accesses */
+  
+  uint64_t *latimes;    /*!< a cacheline-level last access time */
+  size_t *clines;       /*!< the cache in terms of cachelines */
+
+  uint64_t nhits;       /*!< counts the number of hits */
+  uint64_t nmisses;     /*!< counts the number of misses */
+} gk_cache_t;
 
 
 #endif

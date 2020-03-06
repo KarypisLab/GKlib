@@ -4,7 +4,7 @@
 
 \date   Started 3/27/2007
 \author George
-\version\verbatim $Id: gk_proto.h 21050 2017-05-25 03:53:58Z karypis $ \endverbatim
+\version\verbatim $Id: gk_proto.h 22010 2018-05-14 20:20:26Z karypis $ \endverbatim
 */
 
 #ifndef _GK_PROTO_H_
@@ -389,8 +389,9 @@ void gk_graph_Free(gk_graph_t **graph);
 void gk_graph_FreeContents(gk_graph_t *graph);
 gk_graph_t *gk_graph_Read(char *filename, int format, int hasvals, 
                  int numbering, int isfewgts, int isfvwgts, int isfvsizes);
-void gk_graph_Write(gk_graph_t *graph, char *filename, int format);
+void gk_graph_Write(gk_graph_t *graph, char *filename, int format, int numbering);
 gk_graph_t *gk_graph_Dup(gk_graph_t *graph);
+gk_graph_t *gk_graph_Transpose(gk_graph_t *graph);
 gk_graph_t *gk_graph_ExtractSubgraph(gk_graph_t *graph, int vstart, int nvtxs);
 gk_graph_t *gk_graph_Reorder(gk_graph_t *graph, int32_t *perm, int32_t *iperm);
 int gk_graph_FindComponents(gk_graph_t *graph, int32_t *cptr, int32_t *cind);
@@ -401,8 +402,16 @@ void gk_graph_ComputeBestFOrdering0(gk_graph_t *graph, int v, int type,
 void gk_graph_ComputeBestFOrdering(gk_graph_t *graph, int v, int type,
               int32_t **r_perm, int32_t **r_iperm);
 void gk_graph_SingleSourceShortestPaths(gk_graph_t *graph, int v, void **r_sps);
+void gk_graph_SortAdjacencies(gk_graph_t *graph);
+gk_graph_t *gk_graph_MakeSymmetric(gk_graph_t *graph, int op);
 
 
+/* cache.c */
+gk_cache_t *gk_cacheCreate(uint32_t nway, uint32_t lnbits, size_t cnbits);
+void gk_cacheReset(gk_cache_t *cache);
+void gk_cacheDestroy(gk_cache_t **r_cache);
+int gk_cacheLoad(gk_cache_t *cache, size_t addr);
+double gk_cacheGetHitRate(gk_cache_t *cache);
 
 
 #ifdef __cplusplus

@@ -4,7 +4,7 @@
  * \brief Various routines with dealing with sparse graphs 
  *
  * \author George Karypis
- * \version\verbatim $Id: graph.c 21482 2017-09-18 05:53:12Z karypis $ \endverbatim
+ * \version\verbatim $Id: graph.c 22415 2019-09-05 16:55:00Z karypis $ \endverbatim
  */
 
 #include <GKlib.h>
@@ -265,7 +265,13 @@ gk_graph_t *gk_graph_Read(char *filename, int format, int hasvals,
       break;
 
     case GK_GRAPH_FMT_IJV:
+    case GK_GRAPH_FMT_HIJV:
       gk_getfilestats(filename, &nvtxs, &nedges, NULL, NULL);
+
+      if (format == GK_GRAPH_FMT_HIJV) { /* remove the #rows/#cols values and row */
+        nedges -= 2; 
+        nvtxs  -= 1;
+      }
 
       if (hasvals == 1 && 3*nvtxs != nedges)
         gk_errexit(SIGERR, "Error: The number of numbers (%zd %d) in the input file is not a multiple of 3.\n", nedges, hasvals);
@@ -273,7 +279,7 @@ gk_graph_t *gk_graph_Read(char *filename, int format, int hasvals,
         gk_errexit(SIGERR, "Error: The number of numbers (%zd %d) in the input file is not a multiple of 2.\n", nedges, hasvals);
 
       nedges = nvtxs;
-      numbering = (numbering ? - 1 : 0);
+      numbering = (numbering ? -1 : 0);
 
       /* read the data into three arrays */
       iinds = gk_i32malloc(nedges, "iinds");
@@ -286,6 +292,12 @@ gk_graph_t *gk_graph_Read(char *filename, int format, int hasvals,
       }
 
       fpin = gk_fopen(filename, "r", "gk_graph_Read: fpin");
+
+      if (format == GK_GRAPH_FMT_HIJV) { /* read and ignore the #rows/#cols values */
+        if (fscanf(fpin, "%"SCNd64" %"SCNd64, &i, &i) != 2)
+          gk_errexit(SIGERR, "Error: Failed to read the header line.\n");
+      }
+
       for (nvtxs=0, i=0; i<nedges; i++) {
         if (hasvals) {
           if (isfewgts) {
@@ -354,18 +366,17 @@ gk_graph_t *gk_graph_Read(char *filename, int format, int hasvals,
 /*! Writes a graph into a file.
     \param graph is the graph to be written,
     \param filename is the name of the output file.
-    \param format is one of GK_GRAPH_FMT_METIS specifying
-           the format of the output file.
+    \param format specifies the format of the output file.
+    \param numbering is either 0 or 1, indicating if the first vertex 
+           will be numbered 0 or 1. Some formats ignore this.
 */
 /**************************************************************************/
-void gk_graph_Write(gk_graph_t *graph, char *filename, int format)
+void gk_graph_Write(gk_graph_t *graph, char *filename, int format, int numbering)
 {
-  ssize_t i, j;
+  int32_t i;
+  ssize_t j;
   int hasvwgts, hasvsizes, hasewgts;
   FILE *fpout;
-
-  if (format != GK_GRAPH_FMT_METIS)
-    gk_errexit(SIGERR, "Unknown file format. %d\n", format);
 
   if (filename)
     fpout = gk_fopen(filename, "w", "gk_graph_Write: fpout");
@@ -377,39 +388,64 @@ void gk_graph_Write(gk_graph_t *graph, char *filename, int format)
   hasvwgts  = (graph->ivwgts || graph->fvwgts);
   hasvsizes = (graph->ivsizes || graph->fvsizes);
 
-  /* write the header line */
-  fprintf(fpout, "%d %zd", graph->nvtxs, graph->xadj[graph->nvtxs]/2);
-  if (hasvwgts || hasvsizes || hasewgts) 
-    fprintf(fpout, " %d%d%d", hasvsizes, hasvwgts, hasewgts);
-  fprintf(fpout, "\n");
-
-
-  for (i=0; i<graph->nvtxs; i++) {
-    if (hasvsizes) {
-      if (graph->ivsizes)
-        fprintf(fpout, " %d", graph->ivsizes[i]);
-      else
-        fprintf(fpout, " %f", graph->fvsizes[i]);
-    }
-
-    if (hasvwgts) {
-      if (graph->ivwgts)
-        fprintf(fpout, " %d", graph->ivwgts[i]);
-      else
-        fprintf(fpout, " %f", graph->fvwgts[i]);
-    }
-
-    for (j=graph->xadj[i]; j<graph->xadj[i+1]; j++) {
-      fprintf(fpout, " %d", graph->adjncy[j]+1);
-      if (hasewgts) {
-        if (graph->iadjwgt)
-          fprintf(fpout, " %d", graph->iadjwgt[j]);
-        else 
-          fprintf(fpout, " %f", graph->fadjwgt[j]);
+  switch (format) {
+    case GK_GRAPH_FMT_METIS:
+      /* write the header line */
+      fprintf(fpout, "%d %zd", graph->nvtxs, graph->xadj[graph->nvtxs]/2);
+      if (hasvwgts || hasvsizes || hasewgts) 
+        fprintf(fpout, " %d%d%d", hasvsizes, hasvwgts, hasewgts);
+      fprintf(fpout, "\n");
+    
+    
+      for (i=0; i<graph->nvtxs; i++) {
+        if (hasvsizes) {
+          if (graph->ivsizes)
+            fprintf(fpout, " %d", graph->ivsizes[i]);
+          else
+            fprintf(fpout, " %f", graph->fvsizes[i]);
+        }
+    
+        if (hasvwgts) {
+          if (graph->ivwgts)
+            fprintf(fpout, " %d", graph->ivwgts[i]);
+          else
+            fprintf(fpout, " %f", graph->fvwgts[i]);
+        }
+    
+        for (j=graph->xadj[i]; j<graph->xadj[i+1]; j++) {
+          fprintf(fpout, " %d", graph->adjncy[j]+1);
+          if (hasewgts) {
+            if (graph->iadjwgt)
+              fprintf(fpout, " %d", graph->iadjwgt[j]);
+            else 
+              fprintf(fpout, " %f", graph->fadjwgt[j]);
+          }
+        }
+        fprintf(fpout, "\n");
       }
-    }
-    fprintf(fpout, "\n");
+      break;
+
+    case GK_GRAPH_FMT_IJV:
+      for (i=0; i<graph->nvtxs; i++) {
+        for (j=graph->xadj[i]; j<graph->xadj[i+1]; j++) {
+          fprintf(fpout, "%d %d ", i+numbering, graph->adjncy[j]+numbering);
+          if (hasewgts) {
+            if (graph->iadjwgt)
+              fprintf(fpout, " %d\n", graph->iadjwgt[j]);
+            else 
+              fprintf(fpout, " %f\n", graph->fadjwgt[j]);
+          }
+          else {
+            fprintf(fpout, " 1\n");
+          }
+        }
+      }
+      break;
+
+    default:
+      gk_errexit(SIGERR, "Unknown file format. %d\n", format);
   }
+
   if (filename)
     gk_fclose(fpout);
 }
@@ -459,6 +495,71 @@ gk_graph_t *gk_graph_Dup(gk_graph_t *graph)
   if (graph->fadjwgt)
     ngraph->fadjwgt = gk_fcopy(graph->xadj[graph->nvtxs], graph->fadjwgt, 
                             gk_fmalloc(graph->xadj[graph->nvtxs], "gk_graph_Dup: fadjwgt"));
+
+  return ngraph;
+}
+
+
+/*************************************************************************/
+/*! Returns the transpose of a graph.
+    \param graph is the graph to be transposed.
+    \returns the newly created copy of the graph.
+*/
+/**************************************************************************/
+gk_graph_t *gk_graph_Transpose(gk_graph_t *graph)
+{
+  int32_t vi, vj;
+  ssize_t ei;
+
+  gk_graph_t *ngraph;
+
+  ngraph = gk_graph_Create();
+
+  ngraph->nvtxs  = graph->nvtxs;
+  ngraph->xadj   = gk_zsmalloc(graph->nvtxs+1, 0, "gk_graph_Transpose: xadj");
+  ngraph->adjncy = gk_i32malloc(graph->xadj[graph->nvtxs], "gk_graph_Transpose: adjncy");
+
+  if (graph->iadjwgt)
+    ngraph->iadjwgt = gk_i32malloc(graph->xadj[graph->nvtxs], "gk_graph_Transpose: iadjwgt");
+  if (graph->fadjwgt)
+    ngraph->fadjwgt = gk_fmalloc(graph->xadj[graph->nvtxs], "gk_graph_Transpose: fadjwgt");
+
+  for (vi=0; vi<graph->nvtxs; vi++) {
+    for (ei=graph->xadj[vi]; ei<graph->xadj[vi+1]; ei++)
+      ngraph->xadj[graph->adjncy[ei]]++;
+  }
+  MAKECSR(vi, ngraph->nvtxs, ngraph->xadj);
+
+  for (vi=0; vi<graph->nvtxs; vi++) {
+    for (ei=graph->xadj[vi]; ei<graph->xadj[vi+1]; ei++) {
+      vj = graph->adjncy[ei];
+      ngraph->adjncy[ngraph->xadj[vj]] = vi;
+      if (ngraph->iadjwgt)
+        ngraph->iadjwgt[ngraph->xadj[vj]] = graph->iadjwgt[ei];
+      if (ngraph->fadjwgt)
+        ngraph->fadjwgt[ngraph->xadj[vj]] = graph->fadjwgt[ei];
+      ngraph->xadj[vj]++;
+    }
+  }
+  SHIFTCSR(vi, ngraph->nvtxs, ngraph->xadj);
+
+  /* copy vertex attributes */
+  if (graph->ivwgts)
+    ngraph->ivwgts = gk_i32copy(graph->nvtxs, graph->ivwgts, 
+                            gk_i32malloc(graph->nvtxs, "gk_graph_Transpose: ivwgts"));
+  if (graph->ivsizes)
+    ngraph->ivsizes = gk_i32copy(graph->nvtxs, graph->ivsizes, 
+                            gk_i32malloc(graph->nvtxs, "gk_graph_Transpose: ivsizes"));
+  if (graph->vlabels)
+    ngraph->vlabels = gk_i32copy(graph->nvtxs, graph->vlabels, 
+                            gk_i32malloc(graph->nvtxs, "gk_graph_Transpose: ivlabels"));
+  if (graph->fvwgts)
+    ngraph->fvwgts = gk_fcopy(graph->nvtxs, graph->fvwgts, 
+                            gk_fmalloc(graph->nvtxs, "gk_graph_Transpose: fvwgts"));
+  if (graph->fvsizes)
+    ngraph->fvsizes = gk_fcopy(graph->nvtxs, graph->fvsizes, 
+                            gk_fmalloc(graph->nvtxs, "gk_graph_Transpose: fvsizes"));
+
 
   return ngraph;
 }
@@ -1276,9 +1377,6 @@ void gk_graph_SingleSourceShortestPaths(gk_graph_t *graph, int v, void **r_sps)
 }
 
 
-
-#ifdef XXX
-
 /*************************************************************************/
 /*! Sorts the adjacency lists in increasing vertex order
     \param graph the graph itself,
@@ -1286,73 +1384,250 @@ void gk_graph_SingleSourceShortestPaths(gk_graph_t *graph, int v, void **r_sps)
 /**************************************************************************/
 void gk_graph_SortAdjacencies(gk_graph_t *graph)
 {
-  int n, nn=0;
-  ssize_t *ptr;
-  int *ind;
-  float *val;
+  int32_t nvtxs, nn=0;
+  ssize_t *xadj;
+  int32_t *adjncy;
+  int32_t *iadjwgt;
+  float *fadjwgt;
 
-  switch (what) {
-    case GK_CSR_ROW:
-      if (!graph->rowptr)
-        gk_errexit(SIGERR, "Row-based view of the graphrix does not exists.\n");
+  nvtxs   = graph->nvtxs;
+  xadj    = graph->xadj;
+  adjncy  = graph->adjncy;
+  iadjwgt = graph->iadjwgt;
+  fadjwgt = graph->fadjwgt;
 
-      n   = graph->nrows;
-      ptr = graph->rowptr;
-      ind = graph->rowind;
-      val = graph->rowval;
-      break;
-
-    case GK_CSR_COL:
-      if (!graph->colptr)
-        gk_errexit(SIGERR, "Column-based view of the graphrix does not exists.\n");
-
-      n   = graph->ncols;
-      ptr = graph->colptr;
-      ind = graph->colind;
-      val = graph->colval;
-      break;
-
-    default:
-      gk_errexit(SIGERR, "Invalid index type of %d.\n", what);
-      return;
-  }
-
-  #pragma omp parallel if (n > 100)
+  #pragma omp parallel if (nvtxs > 100)
   {
     ssize_t i, j, k;
     gk_ikv_t *cand;
-    float *tval;
+    int32_t *itwgts=NULL;
+    float *ftwgts=NULL;
 
     #pragma omp single
-    for (i=0; i<n; i++) 
-      nn = gk_max(nn, ptr[i+1]-ptr[i]);
+    for (i=0; i<nvtxs; i++) 
+      nn = gk_max(nn, xadj[i+1]-xadj[i]);
   
-    cand = gk_ikvmalloc(nn, "gk_graph_SortIndices: cand");
-    tval = gk_fmalloc(nn, "gk_graph_SortIndices: tval");
+    cand   = gk_ikvmalloc(nn, "gk_graph_SortIndices: cand");
+    if (iadjwgt)
+      itwgts = gk_i32malloc(nn, "gk_graph_SortIndices: itwgts");
+    if (fadjwgt)
+      ftwgts = gk_fmalloc(nn, "gk_graph_SortIndices: ftwgts");
   
     #pragma omp for schedule(static)
-    for (i=0; i<n; i++) {
-      for (k=0, j=ptr[i]; j<ptr[i+1]; j++) {
-        if (j > ptr[i] && ind[j] < ind[j-1])
+    for (i=0; i<nvtxs; i++) {
+      for (k=0, j=xadj[i]; j<xadj[i+1]; j++) {
+        if (j > xadj[i] && adjncy[j] < adjncy[j-1])
           k = 1; /* an inversion */
-        cand[j-ptr[i]].val = j-ptr[i];
-        cand[j-ptr[i]].key = ind[j];
-        tval[j-ptr[i]]     = val[j];
+        cand[j-xadj[i]].val = (int32_t)(j-xadj[i]);
+        cand[j-xadj[i]].key = adjncy[j];
+        if (itwgts)
+          itwgts[j-xadj[i]] = iadjwgt[j];
+        if (ftwgts)
+          ftwgts[j-xadj[i]] = fadjwgt[j];
       }
       if (k) {
-        gk_ikvsorti(ptr[i+1]-ptr[i], cand);
-        for (j=ptr[i]; j<ptr[i+1]; j++) {
-          ind[j] = cand[j-ptr[i]].key;
-          val[j] = tval[cand[j-ptr[i]].val];
+        gk_ikvsorti(xadj[i+1]-xadj[i], cand);
+        for (j=xadj[i]; j<xadj[i+1]; j++) {
+          adjncy[j] = cand[j-xadj[i]].key;
+          if (itwgts)
+            iadjwgt[j] = itwgts[cand[j-xadj[i]].val];
+          if (ftwgts)
+            fadjwgt[j] = ftwgts[cand[j-xadj[i]].val];
         }
       }
     }
 
-    gk_free((void **)&cand, &tval, LTERM);
+    gk_free((void **)&cand, &itwgts, &ftwgts, LTERM);
   }
-
 }
 
+
+/*************************************************************************/
+/*! Returns a symmetric version of a graph. The symmetric version
+    is constructed by applying an A op A^T operation, where op is one of
+    GK_GRAPH_SYM_SUM, GK_GRAPH_SYM_MIN, GK_GRAPH_SYM_MAX, GK_GRAPH_SYM_AVG.
+   
+    \param mat the matrix to be symmetrized,
+    \param op indicates the operation to be performed. The possible values are
+           GK_GRAPH_SYM_SUM, GK_GRAPH_SYM_MIN, GK_GRAPH_SYM_MAX, and GK_GRAPH_SYM_AVG.
+
+    \returns the symmetrized matrix consisting only of its row-based structure. 
+          The input matrix is not modified. 
+
+TODO: Need to deal with all vertex attributes that are currently do not get
+      copied over.
+*/
+/**************************************************************************/
+gk_graph_t *gk_graph_MakeSymmetric(gk_graph_t *graph, int op)
+{
+  ssize_t i, j, k, nnz;
+  int nrows, nadj, hasvals;
+  ssize_t *rowptr, *colptr, *nrowptr;
+  int *rowind, *colind, *nrowind, *marker, *ids;
+  float *rowval=NULL, *colval=NULL, *nrowval=NULL, *wgts=NULL;
+  int32_t *irowval=NULL, *icolval=NULL, *nirowval=NULL, *iwgts=NULL;
+  gk_graph_t *ngraph;
+
+  hasvals = (graph->iadjwgt != NULL || graph->fadjwgt != NULL);
+
+  nrows  = graph->nvtxs;
+  rowptr = graph->xadj;
+  rowind = graph->adjncy;
+  if (hasvals) {
+    irowval = graph->iadjwgt;
+     rowval = graph->fadjwgt;
+  }
+
+  /* create the column view for efficient processing */
+  colptr = gk_zsmalloc(nrows+1, 0, "colptr");
+  colind = gk_i32malloc(rowptr[nrows], "colind");
+  if (hasvals) {
+    if (rowval)
+      colval = gk_fmalloc(rowptr[nrows], "colval");
+    if (irowval)
+      icolval = gk_i32malloc(rowptr[nrows], "icolval");
+  }
+
+  for (i=0; i<nrows; i++) {
+    for (j=rowptr[i]; j<rowptr[i+1]; j++) 
+      colptr[rowind[j]]++;
+  }
+  MAKECSR(i, nrows, colptr);
+
+  for (i=0; i<nrows; i++) {
+    for (j=rowptr[i]; j<rowptr[i+1]; j++) {
+      colind[colptr[rowind[j]]] = i;
+      if (hasvals) {
+        if (rowval)
+          colval[colptr[rowind[j]]] = rowval[j];
+        if (irowval)
+          icolval[colptr[rowind[j]]] = irowval[j];
+      }
+      colptr[rowind[j]]++;
+    }
+  }
+  SHIFTCSR(i, nrows, colptr);
+
+
+  ngraph = gk_graph_Create();
+  ngraph->nvtxs = graph->nvtxs;
+
+  nrowptr = ngraph->xadj = gk_zmalloc(nrows+1, "gk_csr_MakeSymmetric: nrowptr");
+  nrowind = ngraph->adjncy = gk_imalloc(2*rowptr[nrows], "gk_csr_MakeSymmetric: nrowind");
+  if (hasvals) {
+    if (rowval)
+      nrowval = graph->fadjwgt = gk_fmalloc(2*rowptr[nrows], "gk_csr_MakeSymmetric: nrowval");
+    if (irowval)
+      nirowval = graph->iadjwgt = gk_i32malloc(2*rowptr[nrows], "gk_csr_MakeSymmetric: nrowval");
+  }
+
+  marker = gk_ismalloc(nrows, -1, "marker");
+  ids    = gk_imalloc(nrows, "ids");
+  if (hasvals) {
+    if (rowval)
+      wgts = gk_fmalloc(nrows, "wgts");
+    if (irowval)
+      iwgts = gk_i32malloc(nrows, "wgts");
+  }
+
+  nrowptr[0] = nnz = 0;
+  for (i=0; i<nrows; i++) {
+    nadj = 0;
+    /* out-edges */
+    for (j=rowptr[i]; j<rowptr[i+1]; j++) {
+      ids[nadj] = rowind[j]; 
+      if (wgts)
+        wgts[nadj] = (op == GK_CSR_SYM_AVG ? 0.5*rowval[j] : rowval[j]);
+      if (iwgts)
+        iwgts[nadj] = (op == GK_CSR_SYM_AVG ? 0.5*irowval[j] : irowval[j]);
+      marker[rowind[j]] = nadj++;
+    }
+
+    /* in-edges */
+    for (j=colptr[i]; j<colptr[i+1]; j++) {
+      if (marker[colind[j]] == -1) {
+        if (op != GK_CSR_SYM_MIN) {
+          ids[nadj] = colind[j]; 
+          if (wgts) 
+            wgts[nadj] = (op == GK_CSR_SYM_AVG ? 0.5*colval[j] : colval[j]);
+          if (iwgts) 
+            iwgts[nadj] = (op == GK_CSR_SYM_AVG ? 0.5*icolval[j] : icolval[j]);
+          nadj++;
+        }
+      }
+      else {
+        if (wgts) {
+          switch (op) {
+            case GK_CSR_SYM_MAX:
+              wgts[marker[colind[j]]] = gk_max(colval[j], wgts[marker[colind[j]]]);
+              break;
+            case GK_CSR_SYM_MIN:
+              wgts[marker[colind[j]]] = gk_min(colval[j], wgts[marker[colind[j]]]);
+              break;
+            case GK_CSR_SYM_SUM:
+              wgts[marker[colind[j]]] += colval[j];
+              break;
+            case GK_CSR_SYM_AVG:
+              wgts[marker[colind[j]]] = 0.5*(wgts[marker[colind[j]]] + colval[j]);
+              break;
+            default:
+              errexit("Unsupported op for MakeSymmetric!\n");
+          }
+        }
+        if (iwgts) {
+          switch (op) {
+            case GK_CSR_SYM_MAX:
+              iwgts[marker[colind[j]]] = gk_max(icolval[j], iwgts[marker[colind[j]]]);
+              break;
+            case GK_CSR_SYM_MIN:
+              iwgts[marker[colind[j]]] = gk_min(icolval[j], iwgts[marker[colind[j]]]);
+              break;
+            case GK_CSR_SYM_SUM:
+              iwgts[marker[colind[j]]] += icolval[j];
+              break;
+            case GK_CSR_SYM_AVG:
+              iwgts[marker[colind[j]]] = 0.5*(wgts[marker[colind[j]]] + icolval[j]);
+              break;
+            default:
+              errexit("Unsupported op for MakeSymmetric!\n");
+          }
+        }
+        marker[colind[j]] = -1;
+      }
+    }
+
+    /* go over out edges again to resolve any edges that were not found in the in
+     * edges */
+    for (j=rowptr[i]; j<rowptr[i+1]; j++) {
+      if (marker[rowind[j]] != -1) {
+        if (op == GK_CSR_SYM_MIN)
+          ids[marker[rowind[j]]] = -1;
+        marker[rowind[j]] = -1;
+      }
+    }
+
+    /* put the non '-1' entries in ids[] into i's row */
+    for (j=0; j<nadj; j++) {
+      if (ids[j] != -1) {
+        nrowind[nnz] = ids[j];
+        if (wgts)
+          nrowval[nnz] = wgts[j];
+        if (iwgts)
+          nirowval[nnz] = iwgts[j];
+        nnz++;
+      }
+    }
+    nrowptr[i+1] = nnz;
+  }
+
+  gk_free((void **)&colptr, &colind, &colval, &icolval, &marker, &ids, &wgts, &iwgts, LTERM);
+
+  return ngraph;
+}
+
+
+
+#ifdef XXX
 
 /*************************************************************************/
 /*! Returns a subgraphrix containing a certain set of rows.

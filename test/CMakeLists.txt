@@ -17,4 +17,4 @@ foreach(prog strings gksort fis gkrw gkgraph csrcnv grKx m2mnbrs cmpnbrs splatt2
 endforeach(prog)
 
 # Install
-install(TARGETS fis csrcnv m2mnbrs gkrw cmpnbrs RUNTIME DESTINATION bin)
+install(TARGETS fis csrcnv m2mnbrs gkrw cmpnbrs gkgraph RUNTIME DESTINATION bin)

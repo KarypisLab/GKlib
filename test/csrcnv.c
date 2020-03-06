@@ -27,6 +27,7 @@ typedef struct {
   float rownrmfltr; /* row-lowfilter threshold */
   int compactcols;  /* if to renumber columns to eliminate empty ones */
   int transpose;    /* transpose the output matrix */
+  char *srenumber;  /* the iperm file for the symmetric renumbering */
   char *infile;     /* input file */
   char *outfile;    /* output file */
 } params_t;
@@ -48,6 +49,7 @@ typedef struct {
 #define CMD_ROWNRMFLTR    11
 #define CMD_COMPACTCOLS   12
 #define CMD_TRANSPOSE     13
+#define CMD_SRENUMBER     14
 #define CMD_HELP          100
 
 
@@ -68,6 +70,7 @@ static struct gk_option long_options[] = {
   {"rownrmfltr",  1,      0,      CMD_ROWNRMFLTR},
   {"compactcols", 0,      0,      CMD_COMPACTCOLS},
   {"transpose",   0,      0,      CMD_TRANSPOSE},
+  {"srenumber",   1,      0,      CMD_SRENUMBER},
   {"help",        0,      0,      CMD_HELP},
   {0,             0,      0,      0}
 };
@@ -135,6 +138,9 @@ static char helpstr[][100] = {
 "  -transpose",
 "     Specifies that the transposed matrix will be written.",
 " ",
+"  -srenumber=iperm-file",
+"     Performs a symmetric renumbering based on the provided iperm file.",
+" ",
 "  -help",
 "     Prints this message.",
 ""
@@ -167,6 +173,7 @@ params_t *parse_cmdline(int argc, char *argv[])
   params->cshuf     = 0;
   params->symmetric = 0;
   params->transpose = 0;
+  params->srenumber = NULL;
 
   params->mincolfreq  = -1;
   params->minrowfreq  = -1;
@@ -224,6 +231,14 @@ params_t *parse_cmdline(int argc, char *argv[])
         break;
       case CMD_COMPACTCOLS:
         params->compactcols = 1;
+        break;
+
+      case CMD_SRENUMBER:
+        if (gk_optarg) {
+          params->srenumber = gk_strdup(gk_optarg);
+          if (!gk_fexists(params->srenumber))
+            errexit("srenumber file %s does not exist.\n", params->srenumber);
+        }
         break;
 
       case CMD_HELP:
@@ -336,6 +351,32 @@ int main(int argc, char *argv[])
     mat = smat;
   }
 
+
+  if (params->srenumber) {
+    int32_t i;
+    size_t nlines;
+    int32_t *iperm;
+    gk_csr_t *smat;
+
+    iperm = gk_i32readfile(params->srenumber, &nlines);
+    if (nlines != mat->nrows && nlines != mat->ncols)
+      errexit("The nlines=%zud of srenumber file does not match nrows: %d, ncols: %d\n", nlines, mat->nrows, mat->ncols);
+
+    if (gk_i32max(nlines, iperm, 1) >= nlines && gk_i32min(nlines, iperm, 1) <= 0) 
+      errexit("The srenumber iperm seems to be wrong.\n");
+    
+    if (gk_i32max(nlines, iperm, 1) == nlines) { /* need to renumber */
+      for (i=0; i<nlines; i++)
+        iperm[i]--;
+    }
+
+    smat = gk_csr_ReorderSymmetric(mat, iperm, NULL);
+    gk_csr_Free(&mat);
+    mat = smat;
+
+    gk_free((void **)&iperm, LTERM);
+  }
+
   if (params->writevals && mat->rowval == NULL) 
     mat->rowval = gk_fsmalloc(mat->rowptr[mat->nrows], 1.0, "mat->rowval");
 
@@ -345,6 +386,8 @@ int main(int argc, char *argv[])
     mat = mat1;
     mat1 = NULL;
   }
+
+
 
   gk_csr_Write(mat, params->outfile, params->outf, params->writevals, 0);
 
