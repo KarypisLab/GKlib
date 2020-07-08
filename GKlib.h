@@ -37,7 +37,6 @@
 #include <float.h>
 #include <time.h>
 #include <string.h>
-#include <unistd.h>
 #include <limits.h>
 #include <signal.h>
 #include <setjmp.h>

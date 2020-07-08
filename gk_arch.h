@@ -35,6 +35,7 @@
   #include "ms_stdint.h"
   #include "ms_inttypes.h"
   #include "ms_stat.h"
+  #include "win32/adapt.h"
 #else
 #ifndef SUNOS
   #include <stdint.h>
@@ -43,6 +44,7 @@
   #include <sys/types.h>
   #include <sys/resource.h>
   #include <sys/time.h>
+  #include <unistd.h>
 #endif
 
 
