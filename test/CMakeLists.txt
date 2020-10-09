@@ -12,9 +12,10 @@ add_executable(grKx grKx.c)
 add_executable(m2mnbrs m2mnbrs.c)
 add_executable(cmpnbrs cmpnbrs.c)
 add_executable(splatt2svd splatt2svd.c)
-foreach(prog strings gksort fis gkrw gkgraph csrcnv grKx m2mnbrs cmpnbrs splatt2svd)
+add_executable(gkuniq gkuniq.c)
+foreach(prog strings gksort fis gkrw gkgraph csrcnv grKx m2mnbrs cmpnbrs splatt2svd gkuniq)
   target_link_libraries(${prog} GKlib)
 endforeach(prog)
 
 # Install
-install(TARGETS fis csrcnv m2mnbrs gkrw cmpnbrs gkgraph RUNTIME DESTINATION bin)
+install(TARGETS fis csrcnv m2mnbrs gkrw cmpnbrs gkgraph gkuniq RUNTIME DESTINATION bin)
