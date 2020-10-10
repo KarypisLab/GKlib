@@ -57,7 +57,12 @@ static char helpstr[][100] = {
 /*************************************************************************/
 params_t *parse_cmdline(int argc, char *argv[]);
 int unique_v1(int n, int *input, int *output);
+int unique_v2(int n, int *input, int *output);
+void mem_flush(const void *p, unsigned int allocation_size);
 
+/*************************************************************************/
+/*! An function to flush the cache associated with an array */
+/**************************************************************************/
 void mem_flush(const void *p, unsigned int allocation_size)
 {
   const size_t cache_line = 64;
@@ -109,6 +114,14 @@ int main(int argc, char *argv[])
   nunique = unique_v1(n, input, output);
   gk_stopwctimer(tmr);
   printf("V1: nunique: %d, timer: %.5lf\n", nunique, gk_getwctimer(tmr));
+
+  gk_clearwctimer(tmr);
+  gk_startwctimer(tmr);
+  mem_flush(input, n*sizeof(int));
+  mem_flush(output, n*sizeof(int));
+  nunique = unique_v2(n, input, output);
+  gk_stopwctimer(tmr);
+  printf("V2: nunique: %d, timer: %.5lf\n", nunique, gk_getwctimer(tmr));
 
   gk_free((void **)&input, &output, LTERM);
 
@@ -171,4 +184,31 @@ int unique_v1(int n, int *input, int *output)
       output[++j] = input[i];
   }
   return j+1;
+}
+
+
+/*************************************************************************/
+/*! hash-table based approach */
+/*************************************************************************/
+int unique_v2(int n, int *input, int *output)
+{
+  int i, j, k, nuniq, size, mask;
+  int *hmap;
+
+  for (size=1; size<2*n; size*=2);
+  mask = size-1;
+  //printf("size: %d, mask: %x\n", size, mask);
+  hmap = gk_ismalloc(size, -1, "hmap");
+
+  for (nuniq=0, i=0; i<n; i++) {
+    k = input[i];
+    for (j=(k&mask); hmap[j]!=-1 && hmap[j]!=k; j=((j+1)&mask));
+    if (hmap[j] == -1) {
+      hmap[j] = k;
+      output[nuniq++] = k;
+    }
+  }
+
+  gk_free((void **)&hmap, LTERM);
+  return nuniq;
 }
