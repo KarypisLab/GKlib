@@ -58,6 +58,7 @@ static char helpstr[][100] = {
 params_t *parse_cmdline(int argc, char *argv[]);
 int unique_v1(int n, int *input, int *output);
 int unique_v2(int n, int *input, int *output);
+int unique_v3(int n, int *input, int *output, int *r_maxsize, int **r_hmap);
 void mem_flush(const void *p, unsigned int allocation_size);
 
 /*************************************************************************/
@@ -93,7 +94,8 @@ int main(int argc, char *argv[])
   int i, j, k;
   params_t *params;
   double tmr;
-  int n, nunique, *input, *output; 
+  int n, nunique, *input, *output;
+  int maxsize=0, *hmap=NULL; 
  
   params = parse_cmdline(argc, argv);
 
@@ -113,7 +115,7 @@ int main(int argc, char *argv[])
   mem_flush(output, n*sizeof(int));
   nunique = unique_v1(n, input, output);
   gk_stopwctimer(tmr);
-  printf("V1: nunique: %d, timer: %.5lf\n", nunique, gk_getwctimer(tmr));
+  printf(" V1: nunique: %d, timer: %.5lf\n", nunique, gk_getwctimer(tmr));
 
   gk_clearwctimer(tmr);
   gk_startwctimer(tmr);
@@ -121,9 +123,25 @@ int main(int argc, char *argv[])
   mem_flush(output, n*sizeof(int));
   nunique = unique_v2(n, input, output);
   gk_stopwctimer(tmr);
-  printf("V2: nunique: %d, timer: %.5lf\n", nunique, gk_getwctimer(tmr));
+  printf(" V2: nunique: %d, timer: %.5lf\n", nunique, gk_getwctimer(tmr));
 
-  gk_free((void **)&input, &output, LTERM);
+  gk_clearwctimer(tmr);
+  gk_startwctimer(tmr);
+  mem_flush(input, n*sizeof(int));
+  mem_flush(output, n*sizeof(int));
+  nunique = unique_v3(n, input, output, &maxsize, &hmap);
+  gk_stopwctimer(tmr);
+  printf("V3c: nunique: %d, timer: %.5lf\n", nunique, gk_getwctimer(tmr));
+
+  gk_clearwctimer(tmr);
+  gk_startwctimer(tmr);
+  mem_flush(input, n*sizeof(int));
+  mem_flush(output, n*sizeof(int));
+  nunique = unique_v3(n, input, output, &maxsize, &hmap);
+  gk_stopwctimer(tmr);
+  printf("V3w: nunique: %d, timer: %.5lf\n", nunique, gk_getwctimer(tmr));
+
+  gk_free((void **)&input, &output, &hmap, LTERM);
 
 }
 
@@ -210,5 +228,39 @@ int unique_v2(int n, int *input, int *output)
   }
 
   gk_free((void **)&hmap, LTERM);
+  return nuniq;
+}
+
+
+/*************************************************************************/
+/*! hash-table based approach, where the htable is most likely pre-allocated */
+/*************************************************************************/
+int unique_v3(int n, int *input, int *output, int *r_maxsize, int **r_hmap)
+{
+  int i, j, k, nuniq, size, mask;
+  int *hmap;
+
+  for (size=1; size<2*n; size*=2);
+  mask = size-1;
+  //printf("size: %d, mask: %x\n", size, mask);
+  if (size > *r_maxsize) {
+    gk_free((void **)r_hmap, LTERM);
+    hmap = *r_hmap = gk_ismalloc(size, -1, "hmap");
+    *r_maxsize = size;
+  }
+  else {
+    hmap = *r_hmap;
+    gk_iset(size, -1, hmap);
+  }
+
+  for (nuniq=0, i=0; i<n; i++) {
+    k = input[i];
+    for (j=(k&mask); hmap[j]!=-1 && hmap[j]!=k; j=((j+1)&mask));
+    if (hmap[j] == -1) {
+      hmap[j] = k;
+      output[nuniq++] = k;
+    }
+  }
+
   return nuniq;
 }
