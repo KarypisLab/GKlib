@@ -1,8 +1,7 @@
 # Configuration options.
-cc       = gcc
+cc       = $(CC)
 prefix   = ~/local
 openmp   = not-set
-gdb      = not-set
 assert   = not-set
 assert2  = not-set
 debug    = not-set
@@ -11,7 +10,6 @@ pcre     = not-set
 gkregex  = not-set
 gkrand   = not-set
 
-
 # Basically proxies everything to the builddir cmake.
 cputype = $(shell uname -m | sed "s/\\ /_/g")
 systype = $(shell uname -s)
@@ -19,10 +17,8 @@ systype = $(shell uname -s)
 BUILDDIR = build/$(systype)-$(cputype)
 
 # Process configuration options.
-CONFIG_FLAGS = -DCMAKE_VERBOSE_MAKEFILE=1
-ifneq ($(gdb), not-set)
-    CONFIG_FLAGS += -DGDB=$(gdb)
-endif
+CONFIG_FLAGS =
+BUILD_FLAGS =
 ifneq ($(assert), not-set)
     CONFIG_FLAGS += -DASSERT=$(assert)
 endif
@@ -42,21 +38,20 @@ ifneq ($(pcre), not-set)
     CONFIG_FLAGS += -DPCRE=$(pcre)
 endif
 ifneq ($(gkregex), not-set)
-    CONFIG_FLAGS += -DGKREGEX=$(pcre)
+    CONFIG_FLAGS += -DGKREGEX=$(gkregex)
 endif
 ifneq ($(gkrand), not-set)
-    CONFIG_FLAGS += -DGKRAND=$(pcre)
+    CONFIG_FLAGS += -DGKRAND=$(gkrand)
 endif
 ifneq ($(prefix), not-set)
     CONFIG_FLAGS += -DCMAKE_INSTALL_PREFIX=$(prefix)
 endif
-ifneq ($(cc), not-set)
-    CONFIG_FLAGS += -DCMAKE_C_COMPILER=$(cc)
-endif
+# Include GKlibSystem.cmake by default
+CONFIG_FLAGS += -DGKLIB_SYSTEM=./cmake/GKlibSystem.cmake
 
 define run-config
 mkdir -p $(BUILDDIR)
-cd $(BUILDDIR) && cmake $(CURDIR) $(CONFIG_FLAGS)
+cd $(BUILDDIR) && CC=$(cc) cmake $(CURDIR) $(CONFIG_FLAGS)
 endef
 
 all clean install: $(BUILDDIR)
