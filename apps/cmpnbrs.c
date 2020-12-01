@@ -9,7 +9,7 @@
 \version \verbatim $Id: m2mnbrs.c 17699 2014-09-27 18:05:31Z karypis $ \endverbatim
 */
 
-#include <GKlib.h>
+#include "GKlib.h"
 
 /*************************************************************************/
 /*! Data structures for the code */

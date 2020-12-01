@@ -13,7 +13,7 @@ these routines where defined.
 \version\verbatim $Id: sort.c 21050 2017-05-25 03:53:58Z karypis $ \endverbatim
 */
 
-#include <GKlib.h>
+#include "GKlib.h"
 
 
 

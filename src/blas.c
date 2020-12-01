@@ -15,7 +15,7 @@ which is used for code generation.
 \version\verbatim $Id: blas.c 14330 2013-05-18 12:15:15Z karypis $ \endverbatim
 */
 
-#include <GKlib.h>
+#include "GKlib.h"
 
 
 

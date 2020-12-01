@@ -7,7 +7,7 @@
 \version \verbatim $Id$ \endverbatim
 */
 
-#include <GKlib.h>
+#include "GKlib.h"
 
 /*************************************************************************/
 /*! Data structures for the code */

@@ -392,6 +392,9 @@ int FPRFX ## CheckHeap(PQT *queue)\
   locator = queue->locator;\
   nnodes  = queue->nnodes;\
 \
+  /* silence unused-but-set-variable */\
+  (void)heap;\
+\
   if (nnodes == 0)\
     return 1;\
 \

@@ -6,7 +6,7 @@
 \author George
 */
 
-#include <GKlib.h>
+#include "GKlib.h"
 
 
 int main(int argc, char *argv[])

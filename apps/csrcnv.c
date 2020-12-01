@@ -8,7 +8,7 @@
 \version \verbatim $Id: csrcnv.c 15314 2013-10-05 16:50:50Z karypis $ \endverbatim
 */
 
-#include <GKlib.h>
+#include "GKlib.h"
 
 /*************************************************************************/
 /*! Data structures for the code */

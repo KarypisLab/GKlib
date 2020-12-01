@@ -13,7 +13,7 @@ of standard functions (but with enhanced functionality).
 */
 /************************************************************************/
 
-#include <GKlib.h>
+#include "GKlib.h"
 
 
 
@@ -498,7 +498,7 @@ time_t gk_str2time(char *str)
   time_t rtime;
 
   memset(&time, '\0', sizeof(time));
-  
+
   if (strptime(str, "%m/%d/%Y %H:%M:%S", &time) == NULL)
     return -1;
 

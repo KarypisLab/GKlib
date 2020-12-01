@@ -8,7 +8,7 @@
 */
 
 
-#include <GKlib.h>
+#include "GKlib.h"
 
 
 
@@ -35,7 +35,7 @@ double gk_WClockSeconds(void)
 **************************************************************************/
 double gk_CPUSeconds(void)
 {
-//#ifdef __OPENMP__
+//#ifdef _OPENMP
 #ifdef __OPENMPXXXX__
   return omp_get_wtime();
 #else

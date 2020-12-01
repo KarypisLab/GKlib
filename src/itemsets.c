@@ -10,7 +10,7 @@
  * \version\verbatim $Id: itemsets.c 19240 2015-10-22 12:41:19Z karypis $ \endverbatim
  */
 
-#include <GKlib.h>
+#include "GKlib.h"
 
 /*-------------------------------------------------------------*/
 /*! Data structures for use within this module */

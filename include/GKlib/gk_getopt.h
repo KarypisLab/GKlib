@@ -46,17 +46,17 @@ struct gk_option {
 };
 
 /* Names for the values of the `has_arg' field of `struct gk_option'.  */
-#define no_argument		0
-#define required_argument	1
-#define optional_argument	2
+#define no_argument       0
+#define required_argument 1
+#define optional_argument 2
 
 
 /* Function prototypes */
-extern int gk_getopt(int __argc, char **__argv, char *__shortopts);
-extern int gk_getopt_long(int __argc, char **__argv, char *__shortopts,
-              struct gk_option *__longopts, int *__longind);
-extern int gk_getopt_long_only (int __argc, char **__argv,
-              char *__shortopts, struct gk_option *__longopts, int *__longind);
+extern int gk_getopt(int argc, char **argv, char *shortopts);
+extern int gk_getopt_long(int argc, char **argv, char *shortopts,
+              struct gk_option *longopts, int *longind);
+extern int gk_getopt_long_only (int argc, char **argv,
+              char *shortopts, struct gk_option *longopts, int *longind);
 
 
 
