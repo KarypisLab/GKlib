@@ -39,7 +39,7 @@ FILE *gk_fopen(char *, char *, const char *);
 void gk_fclose(FILE *);
 ssize_t gk_read(int fd, void *vbuf, size_t count);
 ssize_t gk_write(int fd, void *vbuf, size_t count);
-gk_idx_t gk_getline(char **lineptr, size_t *n, FILE *stream);
+ssize_t gk_getline(char **lineptr, size_t *n, FILE *stream);
 char **gk_readfile(char *fname, size_t *r_nlines);
 int32_t *gk_i32readfile(char *fname, size_t *r_nlines);
 int64_t *gk_i64readfile(char *fname, size_t *r_nlines);

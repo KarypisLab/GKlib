@@ -91,8 +91,6 @@ ssize_t gk_write(int fd, void *vbuf, size_t count)
 }
 
 
-
-
 /*************************************************************************/
 /*! This function is the GKlib implementation of glibc's getline()
     function.
@@ -100,7 +98,7 @@ ssize_t gk_write(int fd, void *vbuf, size_t count)
              number of bytes read.
 */
 /*************************************************************************/
-gk_idx_t gk_getline(char **lineptr, size_t *n, FILE *stream)
+ssize_t gk_getline(char **lineptr, size_t *n, FILE *stream)
 {
 #ifdef HAVE_GETLINE
   return getline(lineptr, n, stream);
@@ -172,6 +170,7 @@ char **gk_readfile(char *fname, size_t *r_nlines)
 
   return lines;
 }
+
 
 /*************************************************************************/
 /*! This function reads the contents of a file and returns it in the

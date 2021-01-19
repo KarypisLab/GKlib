@@ -81,13 +81,13 @@ void gk_getfilestats(char *fname, size_t *r_nlines, size_t *r_ntokens,
 {
   size_t nlines=0, ntokens=0, max_nlntokens=0, nbytes=0, oldntokens=0, nread;
   int intoken=0;
-  char buffer[2049], *cptr;
+  char buffer[4097], *cptr;
   FILE *fpin;
 
   fpin = gk_fopen(fname, "r", "gk_GetFileStats");
 
   while (!feof(fpin)) {
-    nread = fread(buffer, sizeof(char), 2048, fpin);
+    nread = fread(buffer, sizeof(char), 4096, fpin);
     nbytes += nread;
 
     buffer[nread] = '\0';  /* There is space for this one */
