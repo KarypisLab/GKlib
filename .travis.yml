@@ -1,0 +1,30 @@
+# root key configurations (defaults).
+dist: xenial
+
+# operating systems configurations.
+os:
+  - linux
+  - osx
+  - windows
+
+# language configurations.
+language: c
+
+# env variable to toggle apps on and off.
+env:
+  - CMAKE_OPTS=-DGKLIB_BUILD_APPS=ON
+  - CMAKE_OPTS=-DGKLIB_BUILD_APPS=OFF
+
+# invalid configurations to be explicitly included.
+jobs:
+  include:
+  - os: linux
+    compiler: clang
+    env: CMAKE_OPTS=-DGKLIB_BUILD_APPS=ON
+  - os: linux
+    compiler: clang
+    env: CMAKE_OPTS=-DGKLIB_BUILD_APPS=OFF
+
+# Override default script.
+script:
+  - cmake ${CMAKE_OPTS} . && cmake --build . && ctest --output-on-failure
