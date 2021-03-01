@@ -285,6 +285,67 @@ ssize_t *gk_zreadfile(char *fname, size_t *r_nlines)
 
 /*************************************************************************/
 /*! This function reads the contents of a binary file and returns it in the
+    form of an array of char.
+    \param fname is the name of the file
+    \param r_nlines is the number of lines in the file. If it is NULL,
+           this information is not returned.
+*/
+/*************************************************************************/
+char *gk_creadfilebin(char *fname, size_t *r_nelmnts)
+{
+  size_t nelmnts;
+  ssize_t fsize;
+  char *array=NULL;
+  FILE *fpin;
+
+  *r_nelmnts = 0;
+
+  fsize = gk_getfsize(fname);
+
+  if (fsize == -1) {
+    gk_errexit(SIGERR, "Failed to fstat(%s).\n", fname);
+    return NULL;
+  }
+
+  nelmnts = fsize;
+  array = gk_cmalloc(nelmnts, "gk_creadfilebin: array");
+
+  fpin = gk_fopen(fname, "rb", "gk_creadfilebin");
+  if (fread(array, sizeof(char), nelmnts, fpin) != nelmnts) {
+    gk_errexit(SIGERR, "Failed to read the number of words requested. %zu\n", nelmnts);
+    gk_free((void **)&array, LTERM);
+    return NULL;
+  }
+  gk_fclose(fpin);
+
+  *r_nelmnts = nelmnts;
+
+  return array;
+}
+
+/*************************************************************************/
+/*! This function writes the contents of an array into a binary file.
+    \param fname is the name of the file
+    \param n the number of elements in the array.
+    \param a the array to be written out.
+*/
+/*************************************************************************/
+size_t gk_cwritefilebin(char *fname, size_t n, char *a)
+{
+  size_t fsize;
+  FILE *fp;
+
+  fp = gk_fopen(fname, "wb", "gk_writefilebin");
+
+  fsize = fwrite(a, sizeof(char), n, fp);
+
+  gk_fclose(fp);
+
+  return fsize;
+}
+
+/*************************************************************************/
+/*! This function reads the contents of a binary file and returns it in the
     form of an array of int32_t.
     \param fname is the name of the file
     \param r_nlines is the number of lines in the file. If it is NULL,

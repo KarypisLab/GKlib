@@ -44,6 +44,8 @@ char **gk_readfile(char *fname, size_t *r_nlines);
 int32_t *gk_i32readfile(char *fname, size_t *r_nlines);
 int64_t *gk_i64readfile(char *fname, size_t *r_nlines);
 ssize_t *gk_zreadfile(char *fname, size_t *r_nlines);
+char *gk_creadfilebin(char *fname, size_t *r_nelmnts);
+size_t gk_cwritefilebin(char *fname, size_t n, char *a);
 int32_t *gk_i32readfilebin(char *fname, size_t *r_nelmnts);
 size_t gk_i32writefilebin(char *fname, size_t n, int32_t *a);
 int64_t *gk_i64readfilebin(char *fname, size_t *r_nelmnts);
