@@ -280,3 +280,28 @@ void gk_GetVMInfo(size_t *vmsize, size_t *vmrss)
 
   return;
 }
+
+
+/*************************************************************************/
+/*! This function returns the peak virtual memory of the calling process
+    by reading the VmPeak field in /proc/self/status . */
+/*************************************************************************/
+size_t gk_GetProcVmPeak()
+{
+  FILE *fp;
+  char line[128];
+  size_t vmpeak=0;
+
+  if (gk_fexists("/proc/self/status")) {
+    fp = gk_fopen("/proc/self/status", "r", "proc/self/status");
+    while (fgets(line, 128, fp) != NULL) {
+      if (strncmp(line, "VmPeak:", 7) == 0) {
+        vmpeak = atoll(line+8)*1024;
+        break;
+      }
+    }
+    gk_fclose(fp);
+  }
+
+  return vmpeak;
+}

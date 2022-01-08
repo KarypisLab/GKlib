@@ -119,6 +119,7 @@ void   gk_free(void **ptr1,...);
 size_t gk_GetCurMemoryUsed();
 size_t gk_GetMaxMemoryUsed();
 void   gk_GetVMInfo(size_t *vmsize, size_t *vmrss);
+size_t gk_GetProcVmPeak();
 
 
 
