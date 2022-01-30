@@ -7,6 +7,7 @@ assert   = not-set
 assert2  = not-set
 debug    = not-set
 gprof    = not-set
+valgrind = not-set
 pcre     = not-set
 gkregex  = not-set
 gkrand   = not-set
@@ -34,6 +35,9 @@ ifneq ($(debug), not-set)
 endif
 ifneq ($(gprof), not-set)
     CONFIG_FLAGS += -DGPROF=$(gprof)
+endif
+ifneq ($(valgrind), not-set)
+    CONFIG_FLAGS += -DVALGRIND=$(valgrind)
 endif
 ifneq ($(openmp), not-set)
     CONFIG_FLAGS += -DOPENMP=$(openmp)
