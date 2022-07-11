@@ -74,16 +74,10 @@ void mem_flush(const void *p, unsigned int allocation_size)
     return;
 
   for (i = 0; i < allocation_size; i += cache_line) {
-    __asm__ volatile("clflush (%0)\n\t"
-                 :
-                 : "r"(&cp[i])
-                 : "memory");
+    _mm_clflush(&(cp[i]));
   }
 
-  __asm__ volatile("sfence\n\t"
-                :
-                :
-                : "memory");
+  _mm_mfence();
 }
 
 /*************************************************************************/
