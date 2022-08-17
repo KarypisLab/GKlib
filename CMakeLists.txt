@@ -22,8 +22,12 @@ if(UNIX)
   target_link_libraries(GKlib m)
 endif(UNIX)
 
-include_directories("test")
-add_subdirectory("test")
+if (GKlib_DISABLE_TESTING)
+  message("GKlib: testing disabled")
+else()
+  include_directories("test")
+  add_subdirectory("test")
+endif()
 
 install(TARGETS GKlib
   ARCHIVE DESTINATION lib/${LINSTALL_PATH}
