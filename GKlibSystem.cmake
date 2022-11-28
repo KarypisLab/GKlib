@@ -13,6 +13,7 @@ option(OPENMP "enable OpenMP support" OFF)
 option(PCRE "enable PCRE support" OFF)
 option(GKREGEX "enable GKREGEX support" OFF)
 option(GKRAND "enable GKRAND support" OFF)
+option(NO_X86 "enable NO_X86 support" OFF)
 
 
 # Add compiler flags.
@@ -60,6 +61,10 @@ if(OPENMP)
   endif(OPENMP_FOUND)
 endif(OPENMP)
 
+# Set the CPU type 
+if(NO_X86)
+  set(GKlib_COPTIONS "${GKlib_COPTIONS} -DNO_X86=${NO_X86}")
+endif(NO_X86)
 
 # Add various definitions.
 if(GDB)

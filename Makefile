@@ -57,6 +57,9 @@ endif
 ifneq ($(cc), not-set)
     CONFIG_FLAGS += -DCMAKE_C_COMPILER=$(cc)
 endif
+ifneq ($(cputype), x86_64)
+    CONFIG_FLAGS += -DNO_X86=$(cputype)
+endif
 
 define run-config
 mkdir -p $(BUILDDIR)

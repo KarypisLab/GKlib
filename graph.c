@@ -294,7 +294,7 @@ gk_graph_t *gk_graph_Read(char *filename, int format, int hasvals,
       fpin = gk_fopen(filename, "r", "gk_graph_Read: fpin");
 
       if (format == GK_GRAPH_FMT_HIJV) { /* read and ignore the #rows/#cols values */
-        if (fscanf(fpin, "%"SCNd64" %"SCNd64, &i, &i) != 2)
+        if (fscanf(fpin, "%zd %zd", &i, &i) != 2)
           gk_errexit(SIGERR, "Error: Failed to read the header line.\n");
       }
 

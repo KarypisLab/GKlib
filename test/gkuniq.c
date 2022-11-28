@@ -62,10 +62,11 @@ int unique_v3(int n, int *input, int *output, int *r_maxsize, int **r_hmap);
 void mem_flush(const void *p, unsigned int allocation_size);
 
 /*************************************************************************/
-/*! An function to flush the cache associated with an array */
+/*! A function to flush the cache associated with an array */
 /**************************************************************************/
 void mem_flush(const void *p, unsigned int allocation_size)
 {
+#ifndef NO_X86 
   const size_t cache_line = 64;
   const char *cp = (const char *)p;
   size_t i = 0;
@@ -84,6 +85,7 @@ void mem_flush(const void *p, unsigned int allocation_size)
                 :
                 :
                 : "memory");
+#endif
 }
 
 /*************************************************************************/
