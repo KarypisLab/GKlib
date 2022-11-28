@@ -42,7 +42,9 @@
 #endif
   #include <inttypes.h>
   #include <sys/types.h>
+#ifndef __MINGW32__
   #include <sys/resource.h>
+#endif
   #include <sys/time.h>
   #include <unistd.h>
 #endif
