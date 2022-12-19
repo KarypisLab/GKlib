@@ -43,16 +43,13 @@
 #include <assert.h>
 #include <sys/stat.h>
 
-#if defined(__WITHPCRE__)
+#if defined(USE_PCRE) && defined(HAVE_PCREPOSIX_H)
   #include <pcreposix.h>
+#elif defined(HAVE_REGEX_H)
+  #include <regex.h>
 #else
-  #if defined(USE_GKREGEX)
-    #include "gkregex.h"
-  #else
-    #include <regex.h>
-  #endif /* defined(USE_GKREGEX) */
-#endif /* defined(__WITHPCRE__) */
-
+  #include "gkregex.h"
+#endif
 
 
 #if defined(__OPENMP__) 

@@ -11,6 +11,7 @@ valgrind = not-set
 pcre     = not-set
 gkregex  = not-set
 gkrand   = not-set
+shared   = not-set
 
 
 # Basically proxies everything to the builddir cmake.
@@ -59,6 +60,9 @@ ifneq ($(cc), not-set)
 endif
 ifneq ($(cputype), x86_64)
     CONFIG_FLAGS += -DNO_X86=$(cputype)
+endif
+ifneq ($(shared), not-set)
+    CONFIG_FLAGS += -DSHARED=1
 endif
 
 define run-config
