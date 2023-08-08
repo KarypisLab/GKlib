@@ -3,17 +3,17 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 
 # Setup options.
-option(GDB "enable use of GDB" OFF)
-option(ASSERT "turn asserts on" OFF)
-option(ASSERT2 "additional assertions" OFF)
-option(DEBUG "add debugging support" OFF)
-option(GPROF "add gprof support" OFF)
-option(VALGRIND "add valgrind support" OFF)
-option(OPENMP "enable OpenMP support" OFF)
-option(PCRE "enable PCRE support" OFF)
-option(GKREGEX "enable GKREGEX support" OFF)
-option(GKRAND "enable GKRAND support" OFF)
-option(NO_X86 "enable NO_X86 support" OFF)
+option(GKLIB_GDB "enable use of GDB" OFF)
+option(GKLIB_ASSERT "turn asserts on" OFF)
+option(GKLIB_ASSERT2 "additional assertions" OFF)
+option(GKLIB_DEBUG "add debugging support" OFF)
+option(GKLIB_GPROF "add gprof support" OFF)
+option(GKLIB_VALGRIND "add valgrind support" OFF)
+option(GKLIB_OPENMP "enable OpenMP support" OFF)
+option(GKLIB_PCRE "enable PCRE support" OFF)
+option(GKLIB_GKREGEX "enable GKREGEX support" OFF)
+option(GKLIB_GKRAND "enable GKRAND support" OFF)
+option(GKLIB_NO_X86 "enable NO_X86 support" OFF)
 
 
 # Add compiler flags.
@@ -31,7 +31,7 @@ endif(CYGWIN)
 if(CMAKE_COMPILER_IS_GNUCC)
 # GCC opts.
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -std=c99 -fno-strict-aliasing")
-if(VALGRIND)
+if(GKLIB_VALGRIND)
   set(GKlib_COPTIONS "${GK_COPTIONS} -march=x86-64 -mtune=generic")
 else()
 # -march=native is not a valid flag on PPC:
@@ -40,7 +40,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "power|ppc|powerpc|ppc64|powerpc64" OR (APPLE 
 else()
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -march=native")
 endif()
-endif(VALGRIND)
+endif(GKLIB_VALGRIND)
   if(NOT MINGW)
       set(GKlib_COPTIONS "${GKlib_COPTIONS} -fPIC")
   endif(NOT MINGW)
@@ -57,59 +57,59 @@ if(${CMAKE_C_COMPILER_ID} MATCHES "Intel")
 endif()
 
 # Find OpenMP if it is requested.
-if(OPENMP)
+if(GKLIB_OPENMP)
   include(FindOpenMP)
   if(OPENMP_FOUND)
     set(GKlib_COPTIONS "${GKlib_COPTIONS} -D__OPENMP__ ${OpenMP_C_FLAGS}")
   else()
     message(WARNING "OpenMP was requested but support was not found")
   endif(OPENMP_FOUND)
-endif(OPENMP)
+endif(GKLIB_OPENMP)
 
 # Set the CPU type 
-if(NO_X86)
-  set(GKlib_COPTIONS "${GKlib_COPTIONS} -DNO_X86=${NO_X86}")
-endif(NO_X86)
+if(GKLIB_NO_X86)
+  set(GKlib_COPTIONS "${GKlib_COPTIONS} -DNO_X86=${GKLIB_NO_X86}")
+endif(GKLIB_NO_X86)
 
 # Add various definitions.
-if(GDB)
+if(GKLIB_GDB)
   set(GKlib_COPTS "${GKlib_COPTS} -g")
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -Werror")
 else()
   set(GKlib_COPTS "-O3")
-endif(GDB)
+endif(GKLIB_GDB)
 
 
-if(DEBUG)
+if(GKLIB_DEBUG)
   set(GKlib_COPTS "-g")
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -DDEBUG")
-endif(DEBUG)
+endif(GKLIB_DEBUG)
 
-if(GPROF)
+if(GKLIB_GPROF)
   set(GKlib_COPTS "-pg")
-endif(GPROF)
+endif(GKLIB_GPROF)
 
-if(NOT ASSERT)
+if(NOT GKLIB_ASSERT)
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -DNDEBUG")
-endif(NOT ASSERT)
+endif(NOT GKLIB_ASSERT)
 
-if(NOT ASSERT2)
+if(NOT GKLIB_ASSERT2)
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -DNDEBUG2")
-endif(NOT ASSERT2)
+endif(NOT GKLIB_ASSERT2)
 
 
 # Add various options
-if(PCRE)
+if(GKLIB_PCRE)
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -D__WITHPCRE__")
-endif(PCRE)
+endif(GKLIB_PCRE)
 
-if(GKREGEX)
+if(GKLIB_GKREGEX)
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -DUSE_GKREGEX")
-endif(GKREGEX)
+endif(GKLIB_GKREGEX)
 
-if(GKRAND)
+if(GKLIB_GKRAND)
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -DUSE_GKRAND")
-endif(GKRAND)
+endif(GKLIB_GKRAND)
 
 
 # Check for features.

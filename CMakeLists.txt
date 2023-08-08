@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(GKlib C)
 
-option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" OFF)
+option(GKLIB_BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" OFF)
+option(GKLIB_BUILD_TEST "Build test projects" FALSE)
 
 get_filename_component(abs "." ABSOLUTE)
 set(GKLIB_PATH ${abs})
@@ -22,8 +23,10 @@ if(UNIX)
   target_link_libraries(GKlib m)
 endif(UNIX)
 
-include_directories("test")
-add_subdirectory("test")
+if(${GKLIB_BUILD_TEST})
+	include_directories("test")
+	add_subdirectory("test")
+endif()
 
 install(TARGETS GKlib
   ARCHIVE DESTINATION lib/${LINSTALL_PATH}
