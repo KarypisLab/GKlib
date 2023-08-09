@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(GKlib C)
 
 option(GKLIB_BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" OFF)
-option(GKLIB_BUILD_TEST "Build test projects" FALSE)
+option(GKLIB_BUILD_TEST "Build test projects" ON)
 
 get_filename_component(abs "." ABSOLUTE)
 set(GKLIB_PATH ${abs})
