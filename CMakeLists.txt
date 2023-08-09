@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(GKlib C)
 
+set(GKLIB_NAME "GKlib" CACHE INTERNAL "")
 option(GKLIB_BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" OFF)
 option(GKLIB_BUILD_TEST "Build test projects" ON)
 
@@ -17,7 +18,11 @@ else(MSVC)
   set(win32_sources, "")
 endif(MSVC)
 
-add_library(GKlib ${GKlib_includes} ${GKlib_sources} ${win32_sources})
+if(GKLIB_BUILD_SHARED_LIBS)
+	add_library(${GKLIB_NAME} SHARED ${GKlib_includes} ${GKlib_sources} ${win32_sources})
+else()
+	add_library(${GKLIB_NAME} STATIC ${GKlib_includes} ${GKlib_sources} ${win32_sources})
+endif()
 
 if(UNIX)
   target_link_libraries(GKlib m)
