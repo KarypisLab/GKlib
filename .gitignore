@@ -55,3 +55,7 @@ dkms.conf
 build/
 lib/
 .svn/
+
+### Project specific
+CMakeUserPresets.json
+cmake-build-*
