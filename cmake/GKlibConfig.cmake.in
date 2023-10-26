@@ -1,0 +1,35 @@
+@PACKAGE_INIT@
+
+## Define exported variables
+set(GKlib_OpenMP @GKLIB_OpenMP@)
+set(GKlib_PCRE @GKLIB_PCRE@)
+set(GKlib_GKREGEX @GKLIB_GKREGEX@)
+set(GKlib_GKRAND @GKLIB_GKRAND@)
+
+## Add all exported targets
+include(${CMAKE_CURRENT_LIST_DIR}/GKlibTargets.cmake)
+
+set(_GKlib_supported_components OpenMP)
+set(${CMAKE_FIND_PACKAGE_NAME}_OpenMP_FOUND ${GKlib_OpenMP})
+
+include(CMakeFindDependencyMacro)
+if (GKlib_OpenMP)
+	# OpenMP dependency propagates. It needs to be included by other packages
+	find_dependency(OpenMP COMPONENTS C)
+endif ()
+
+# Handle components
+foreach (_comp ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
+	if (NOT _comp IN_LIST _GKlib_supported_components)
+		set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+		set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE "Unsupported component: ${_comp}")
+	endif ()
+	# Currently there is only OpenMP component and that does not export a custom target set
+	# (should have the same SONAME/SOVERSION etc. unless these components are dynamically loaded)
+	if (_comp STREQUAL OpenMP)
+		if (${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED_${_comp} AND NOT GKlib_OpenMP)
+			set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+			set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE "Missing component: ${_comp}")
+		endif ()
+	endif ()
+endforeach ()
