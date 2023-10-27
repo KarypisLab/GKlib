@@ -55,7 +55,7 @@
 
 
 
-#if defined(__OPENMP__) 
+#if defined(_OPENMP)
 #include <omp.h>
 #endif
 

@@ -292,7 +292,7 @@ uint32_t gk_randint32(void);
 /*-------------------------------------------------------------
  * OpenMP fake functions
  *-------------------------------------------------------------*/
-#if !defined(__OPENMP__)
+#if !defined(_OPENMP)
 void omp_set_num_threads(int num_threads);
 int omp_get_num_threads(void);
 int omp_get_max_threads(void);
@@ -303,7 +303,7 @@ void omp_set_dynamic(int num_threads);
 int omp_get_dynamic(void);
 void omp_set_nested(int nested);
 int omp_get_nested(void);
-#endif /* __OPENMP__ */
+#endif /* _OPENMP */
 
 
 /*-------------------------------------------------------------
