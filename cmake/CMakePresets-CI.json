@@ -15,6 +15,10 @@
         "GKLIB_TESTS": {
           "type": "BOOL",
           "value": true
+        },
+        "GKLIB_OpenMP": {
+          "type": "BOOL",
+          "value": "$env{WITH_OPENMP}"
         }
       },
       "errors": {
