@@ -35,8 +35,7 @@ double gk_WClockSeconds(void)
 **************************************************************************/
 double gk_CPUSeconds(void)
 {
-//#ifdef __OPENMP__
-#ifdef __OPENMPXXXX__
+#ifdef _OPENMP
   return omp_get_wtime();
 #else
   #if defined(WIN32) || defined(__MINGW32__)
