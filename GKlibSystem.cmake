@@ -66,7 +66,7 @@ if(OPENMP)
   endif(OPENMP_FOUND)
 endif(OPENMP)
 
-# Set the CPU type 
+# Set the CPU type
 if(NO_X86)
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -DNO_X86=${NO_X86}")
 endif(NO_X86)
@@ -145,8 +145,4 @@ if(MSVC)
 endif()
 
 # Finally set the official C flags.
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GKlib_COPTIONS} ${GKlib_COPTS}")
-
-# Find GKlib sources.
-file(GLOB GKlib_sources ${GKLIB_PATH}/*.c)
-file(GLOB GKlib_includes ${GKLIB_PATH}/*.h)
+add_compile_options("$<$<COMPILE_LANGUAGE:C>:${GKlib_COPTIONS};${GKlib_COPTS}>")
