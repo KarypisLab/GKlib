@@ -15,7 +15,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        intsize: [32, 64]
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
@@ -23,11 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - run: cmake -B build -Dintsize=${{ matrix.intsize }}
-    - run: cmake --build build --parallel
-
-    - run: ctest --test-dir build -V
-
+    - run: cmake --workflow --preset default
 
   windows_msvc:
     runs-on: windows-latest
@@ -36,8 +31,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - run: cmake -B build
-
-    - run: cmake --build build --config Release --parallel
-
-    - run: ctest --test-dir build -C Release -V
+    - run: cmake --workflow --preset msvc
