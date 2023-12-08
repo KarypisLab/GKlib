@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.14...3.28)
 project(GKlib LANGUAGES C)
+enable_testing()
+
+option(BUILD_TESTING "Build tests" ON)
 
 option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" OFF)
 
@@ -30,7 +33,9 @@ $<$<BOOL:${UNIX}>:m>
 $<$<BOOL:${OPENMP}>:OpenMP::OpenMP_C>
 )
 
+if(BUILD_TESTING)
 add_subdirectory(test)
+endif()
 
 install(TARGETS GKlib)
 install(FILES ${GKlib_includes} TYPE INCLUDE)
