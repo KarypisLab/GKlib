@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake)
+
+set(ffilesystem_shaky @ffilesystem_shaky@)
+
+target_link_libraries(metis::metis INTERFACE GKlib)
+
+check_required_components(@PROJECT_NAME@)

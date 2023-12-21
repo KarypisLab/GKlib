@@ -17,6 +17,3 @@ foreach(prog IN ITEMS strings gksort fis gkrw gkgraph csrcnv grKx m2mnbrs cmpnbr
     add_test(NAME ${prog} COMMAND ${prog})
   endif()
 endforeach()
-
-# Install a subset of them
-install(TARGETS csrcnv)
