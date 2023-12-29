@@ -11,9 +11,9 @@ add_executable(cmpnbrs cmpnbrs.c)
 add_executable(splatt2svd splatt2svd.c)
 add_executable(gkuniq gkuniq.c)
 
-foreach(prog strings gksort fis gkrw gkgraph csrcnv grKx m2mnbrs cmpnbrs splatt2svd gkuniq)
-  target_link_libraries(${prog} GKlib)
-endforeach(prog)
-
-# Install a subset of them
-install(TARGETS csrcnv RUNTIME DESTINATION bin)
+foreach(prog IN ITEMS strings gksort fis gkrw gkgraph csrcnv grKx m2mnbrs cmpnbrs splatt2svd gkuniq)
+  target_link_libraries(${prog} PRIVATE GKlib)
+  if(NOT prog MATCHES "m2mnbrs|cmpnbrs|splatt2svd")
+    add_test(NAME ${prog} COMMAND ${prog})
+  endif()
+endforeach()
