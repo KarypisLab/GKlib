@@ -45,7 +45,7 @@ endif(VALGRIND)
       set(GKlib_COPTIONS "${GKlib_COPTIONS} -fPIC")
   endif(NOT MINGW)
 # GCC warnings.
-  set(GKlib_COPTIONS "${GKlib_COPTIONS} -Werror -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")
+  set(GKlib_COPTIONS "${GKlib_COPTIONS} -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")
 elseif(${CMAKE_C_COMPILER_ID} MATCHES "Sun")
 # Sun insists on -xc99.
   set(GKlib_COPTIONS "${GKlib_COPTIONS} -xc99")
