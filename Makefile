@@ -2,6 +2,7 @@
 cc       = gcc
 prefix   = ~/local
 openmp   = not-set
+shared   = not-set
 gdb      = not-set
 assert   = not-set
 assert2  = not-set
@@ -41,6 +42,9 @@ ifneq ($(valgrind), not-set)
 endif
 ifneq ($(openmp), not-set)
     CONFIG_FLAGS += -DOPENMP=$(openmp)
+endif
+ifneq ($(shared), not-set)
+    CONFIG_FLAGS += -DBUILD_SHARED_LIBS=$(shared)
 endif
 ifneq ($(pcre), not-set)
     CONFIG_FLAGS += -DPCRE=$(pcre)
