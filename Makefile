@@ -47,10 +47,10 @@ ifneq ($(pcre), not-set)
     CONFIG_FLAGS += -DPCRE=$(pcre)
 endif
 ifneq ($(gkregex), not-set)
-    CONFIG_FLAGS += -DGKREGEX=$(pcre)
+    CONFIG_FLAGS += -DGKREGEX=$(gkregex)
 endif
 ifneq ($(gkrand), not-set)
-    CONFIG_FLAGS += -DGKRAND=$(pcre)
+    CONFIG_FLAGS += -DGKRAND=$(gkrand)
 endif
 ifneq ($(prefix), not-set)
     CONFIG_FLAGS += -DCMAKE_INSTALL_PREFIX=$(prefix)
