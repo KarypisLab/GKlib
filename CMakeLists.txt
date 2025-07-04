@@ -1,29 +1,37 @@
 cmake_minimum_required(VERSION 3.10)
 project(GKlib C)
 
-option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" OFF)
+set(GKLIB_NAME "GKlib" CACHE INTERNAL "")
+option(GKLIB_BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" OFF)
+option(GKLIB_BUILD_TEST "Build test projects" ON)
 
 get_filename_component(abs "." ABSOLUTE)
 set(GKLIB_PATH ${abs})
 unset(abs)
 include(GKlibSystem.cmake)
 
-include_directories(".")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 if(MSVC)
   include_directories("win32")
-  file(GLOB win32_sources RELATIVE "win32" "*.c")
+  file(GLOB win32_sources "include/win32/*.h" "src/win32/*.c")
 else(MSVC)
   set(win32_sources, "")
 endif(MSVC)
 
-add_library(GKlib ${GKlib_sources} ${win32_sources})
+if(GKLIB_BUILD_SHARED_LIBS)
+	add_library(${GKLIB_NAME} SHARED ${GKlib_includes} ${GKlib_sources} ${win32_sources})
+else()
+	add_library(${GKLIB_NAME} STATIC ${GKlib_includes} ${GKlib_sources} ${win32_sources})
+endif()
 
 if(UNIX)
   target_link_libraries(GKlib m)
 endif(UNIX)
 
-include_directories("test")
-add_subdirectory("test")
+if(${GKLIB_BUILD_TEST})
+	include_directories("test")
+	add_subdirectory("test")
+endif()
 
 install(TARGETS GKlib
   ARCHIVE DESTINATION lib/${LINSTALL_PATH}
