@@ -61,6 +61,12 @@ endif
 ifneq ($(cputype), x86_64)
     CONFIG_FLAGS += -DNO_X86=$(cputype)
 endif
+ifeq ($(systype), Darwin)
+    sysroot = $(shell $(cc) -print-sysroot || echo not-set)
+    ifneq ($(sysroot), not-set)
+	CONFIG_FLAGS += -DCMAKE_OSX_SYSROOT=$(sysroot)
+    endif
+endif
 ifneq ($(shared), not-set)
     CONFIG_FLAGS += -DSHARED=1
 endif
