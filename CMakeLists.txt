@@ -88,7 +88,7 @@ target_compile_definitions(${PROJECT_NAME}
   PUBLIC $<$<NOT:$<BOOL:${ASSERT}>>:NDEBUG>
          $<$<NOT:$<BOOL:${ASSERT2}>>:NDEBUG2>
          $<$<BOOL:${DEBUG}>:DEBUG>
-         $<$<BOOL:${GKRAND}>:GKRAND>
+         $<$<BOOL:${GKRAND}>:USE_GKRAND>
          $<$<BOOL:${NO_X86}>:NO_X86>
          )
 
