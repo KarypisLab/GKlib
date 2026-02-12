@@ -16,7 +16,11 @@ can be used to define other memory allocation routines.
 #include <GKlib.h>
 
 /* This is for the global mcore that tracks all heap allocations */
-static __thread gk_mcore_t *gkmcore = NULL;
+#ifdef _WIN32
+static __declspec(thread) gk_mcore_t* gkmcore = NULL;
+#else
+static __thread gk_mcore_t* gkmcore = NULL;
+#endif
 
 
 /*************************************************************************/

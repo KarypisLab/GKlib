@@ -19,9 +19,15 @@ This file contains functions dealing with error reporting and termination
 /* These are the jmp_buf for the graceful exit in case of severe errors.
    Multiple buffers are defined to allow for recursive invokation. */
 #define MAX_JBUFS 128
-__thread int gk_cur_jbufs=-1;
+#ifdef _WIN32
+__declspec(thread) int gk_cur_jbufs = -1;
+__declspec(thread) jmp_buf gk_jbufs[MAX_JBUFS];
+__declspec(thread) jmp_buf gk_jbuf;
+#else
+__thread int gk_cur_jbufs = -1;
 __thread jmp_buf gk_jbufs[MAX_JBUFS];
 __thread jmp_buf gk_jbuf;
+#endif
 
 typedef void (*gksighandler_t)(int);
 
