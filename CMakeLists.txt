@@ -66,7 +66,8 @@ target_sources(${PROJECT_NAME}
                                    include/win32/adapt.h>)
 
 target_compile_definitions(${PROJECT_NAME}
-  PUBLIC $<$<PLATFORM_ID:Linux>:LINUX>)
+  PUBLIC $<$<PLATFORM_ID:Linux>:LINUX>
+         $<$<PLATFORM_ID:Linux>:_POSIX_C_SOURCE=200809L>)
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
