@@ -206,7 +206,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT GKlibTargets
 # that include a namelink versus those that do not. Unfortunately, prior to
 # CMake 3.12, when the NAMELINK_COMPONENT property was introduced, this was
 # necessary to get the desired behavior.
-if(BUILD_SHARED_LIBS)
+if(SHARED)
   install(TARGETS ${PROJECT_NAME}
     LIBRARY  DESTINATION   ${CMAKE_INSTALL_LIBDIR}
              COMPONENT     GKlib_Development
