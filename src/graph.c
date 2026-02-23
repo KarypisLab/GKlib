@@ -16,7 +16,7 @@
     \returns the allocated graph. The various fields are set to NULL.
 */
 /**************************************************************************/
-gk_graph_t *gk_graph_Create()
+gk_graph_t *gk_graph_Create(void)
 {
   gk_graph_t *graph;
 

@@ -33,7 +33,7 @@ void FPRFX ## srand(RNGT seed) \
 /*************************************************************************/\
 /*! Returns a random number */ \
 /**************************************************************************/\
-RNGT FPRFX ## rand() \
+RNGT FPRFX ## rand(void) \
 {\
   if (sizeof(RNGT) <= sizeof(int32_t)) \
     return (RNGT)gk_randint32(); \
@@ -114,7 +114,7 @@ void FPRFX ## randArrayPermuteFine(RNGT n, VALT *p, int flag)\
 
 #define GK_MKRANDOM_PROTO(FPRFX, RNGT, VALT)\
   void FPRFX ## srand(RNGT seed); \
-  RNGT FPRFX ## rand(); \
+  RNGT FPRFX ## rand(void); \
   RNGT FPRFX ## randInRange(RNGT max); \
   void FPRFX ## randArrayPermute(RNGT n, VALT *p, RNGT nshuffles, int flag);\
   void FPRFX ## randArrayPermuteFine(RNGT n, VALT *p, int flag);\

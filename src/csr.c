@@ -16,7 +16,7 @@
     \returns the allocated matrix. The various fields are set to NULL.
 */
 /**************************************************************************/
-gk_csr_t *gk_csr_Create()
+gk_csr_t *gk_csr_Create(void)
 {
   gk_csr_t *mat=NULL;
 

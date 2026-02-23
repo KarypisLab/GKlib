@@ -40,7 +40,7 @@ gk_mcore_t *gk_mcoreCreate(size_t coresize)
 /*! This function creates an mcore. This version is used for gkmcore.
  */
 /*************************************************************************/
-gk_mcore_t *gk_gkmcoreCreate()
+gk_mcore_t *gk_gkmcoreCreate(void)
 {
   gk_mcore_t *mcore;
 
