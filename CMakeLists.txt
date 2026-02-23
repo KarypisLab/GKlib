@@ -184,7 +184,7 @@ endif()
 #-------------------------------------------------------------------------------
 # generate files
 configure_package_config_file(GKlibConfig.cmake.in cmake/GKlibConfig.cmake
-  INSTALL_DESTINATION lib/cmake/GKlib)
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GKlib)
 
 write_basic_package_version_file(cmake/GKlibConfigVersion.cmake
   VERSION       ${PROJECT_VERSION}
@@ -221,11 +221,11 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
 install(EXPORT GKlibTargets
   FILE        GKlibTargets.cmake
   NAMESPACE   GKlib::
-  DESTINATION lib/cmake/GKlib
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GKlib
   COMPONENT   GKlib_Development)
 
 install(
   FILES       ${CMAKE_CURRENT_BINARY_DIR}/cmake/GKlibConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/cmake/GKlibConfigVersion.cmake
-  DESTINATION lib/cmake/GKlib
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GKlib
   COMPONENT   GKlib_Development)
