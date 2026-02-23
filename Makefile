@@ -59,10 +59,10 @@ ifneq ($(cc), not-set)
     CONFIG_FLAGS += -DCMAKE_C_COMPILER=$(cc)
 endif
 ifneq ($(cputype), x86_64)
-    CONFIG_FLAGS += -DNO_X86=$(cputype)
+    CONFIG_FLAGS += -DNO_X86=ON
 endif
 ifeq ($(systype), Darwin)
-    sysroot = $(shell $(cc) -print-sysroot || echo not-set)
+    sysroot = $(shell $(cc) -print-sysroot 2>/dev/null || echo not-set)
     ifneq ($(sysroot), not-set)
 	CONFIG_FLAGS += -DCMAKE_OSX_SYSROOT=$(sysroot)
     endif
