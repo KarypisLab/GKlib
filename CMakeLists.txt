@@ -74,7 +74,7 @@ target_include_directories(${PROJECT_NAME}
          $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(${PROJECT_NAME}
-  PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:m>)
+  PUBLIC $<$<NOT:$<BOOL:${WIN32}>>:m>)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   POSITION_INDEPENDENT_CODE ON
