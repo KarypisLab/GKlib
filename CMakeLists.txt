@@ -6,6 +6,7 @@ project(GKlib
   LANGUAGES C)
 
 # include required CMake modules
+include(cmake/GKlibSystem.cmake)
 include(CheckCCompilerFlag)
 include(CheckCSourceCompiles)
 include(CheckFunctionExists)
