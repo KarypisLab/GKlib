@@ -1,5 +1,5 @@
 /*!
-\file  
+\file
 \brief A simple program to try out some graph routines
 
 \date 6/12/2008
@@ -87,7 +87,7 @@ static char helpstr[][100] = {
 "     Specifies the follow-the-adjacent-links probability. [default: 0.80]",
 " ",
 "  -eps=float",
-"     Specifies the error tollerance. [default: 1e-10]",
+"     Specifies the error tolerance. [default: 1e-10]",
 " ",
 "  -nosort",
 "     Does not sort the adjacency lists.",
@@ -106,7 +106,7 @@ static char shorthelpstr[][100] = {
 "          use 'gkgraph -help' for a summary of the options.",
 ""
 };
- 
+
 
 
 /*************************************************************************/
@@ -133,7 +133,7 @@ params_t *parse_cmdline(int argc, char *argv[]);
 int main(int argc, char *argv[])
 {
   params_t *params;
- 
+
   /* get command-line options */
   params = parse_cmdline(argc, argv);
 
@@ -149,7 +149,7 @@ void test_spmv(params_t *params)
   ssize_t i, j, v;
   gk_graph_t *graph, *pgraph;
   int32_t *perm;
- 
+
   /* read the data */
   graph = gk_graph_Read(params->infile, GK_GRAPH_FMT_METIS, -1, -1, 0, 0, 0);
 
@@ -228,7 +228,7 @@ void test_tc(params_t *params)
   ssize_t i, j, v;
   gk_graph_t *graph, *pgraph;
   int32_t *perm, *iperm;
- 
+
   /* read the data */
   graph = gk_graph_Read(params->infile, GK_GRAPH_FMT_METIS, -1, -1, 0, 0, 0);
 
@@ -299,7 +299,7 @@ void test_tc(params_t *params)
 void sort_adjacencies(params_t *params, gk_graph_t *graph)
 {
   uint64_t i, nvtxs;
-  ssize_t *xadj; 
+  ssize_t *xadj;
   int32_t *adjncy;
 
   if (params->nosort)
@@ -309,7 +309,7 @@ void sort_adjacencies(params_t *params, gk_graph_t *graph)
   xadj   = graph->xadj;
   adjncy = graph->adjncy;
 
-  for (i=0; i<nvtxs; i++) 
+  for (i=0; i<nvtxs; i++)
     gk_i32sorti(xadj[i+1]-xadj[i], adjncy+xadj[i]);
 
   return;
@@ -324,7 +324,7 @@ void sort_adjacencies(params_t *params, gk_graph_t *graph)
 double compute_spmvstats(params_t *params, gk_graph_t *graph)
 {
   uint64_t i, nvtxs;
-  ssize_t *xadj; 
+  ssize_t *xadj;
   int32_t *adjncy, *vec;
 
   gk_cache_t *cache = gk_cacheCreate(16, params->lnbits, params->cnbits); /* 8MB total; i7 spec */
@@ -365,8 +365,8 @@ double compute_tcstats(params_t *params, gk_graph_t *graph, int32_t *iperm)
   ssize_t *xadj, *uxadj;
   int32_t *adjncy;
   int32_t l, hmsize, *hmap;
-  
-  gk_cache_t *cache = gk_cacheCreate(16, params->lnbits, params->cnbits); 
+
+  gk_cache_t *cache = gk_cacheCreate(16, params->lnbits, params->cnbits);
 
   nvtxs  = graph->nvtxs;
   xadj   = graph->xadj;
@@ -375,7 +375,7 @@ double compute_tcstats(params_t *params, gk_graph_t *graph, int32_t *iperm)
   /* determine the starting location of the upper trianglular part */
   uxadj = gk_zmalloc(nvtxs, "uxadj");
   for (vi=0; vi<nvtxs; vi++) {
-    for (ei=xadj[vi], eiend=xadj[vi+1]; ei<eiend && adjncy[ei]<vi; ei++); 
+    for (ei=xadj[vi], eiend=xadj[vi+1]; ei<eiend && adjncy[ei]<vi; ei++);
     uxadj[vi] = ei;
     /* flip the order of Adj(vi)'s upper triangular adjacency list */
     for (ej=xadj[vi+1]-1; ei<ej; ei++, ej--) {
@@ -387,7 +387,7 @@ double compute_tcstats(params_t *params, gk_graph_t *graph, int32_t *iperm)
 
   /* determine the size of the hash-map and convert it into a format
      that is compatible with a bitwise AND operation */
-  for (hmsize=0, vi=0; vi<nvtxs; vi++) 
+  for (hmsize=0, vi=0; vi<nvtxs; vi++)
     hmsize = gk_max(hmsize, (int32_t)(xadj[vi+1]-uxadj[vi]));
   for (l=1; hmsize>(1<<l); l++);
   hmsize = (1<<(l+4))-1;
@@ -409,8 +409,8 @@ double compute_tcstats(params_t *params, gk_graph_t *graph, int32_t *iperm)
     for (ej=uxadj[vj], ejend=xadj[vj+1]; ej<ejend; ej++) {
       gk_cacheLoad(cache, (size_t)(&adjncy[ej]));
       vk = adjncy[ej];
-      for (l=(vk&hmsize); 
-           gk_cacheLoad(cache, (size_t)(&hmap[l])) && hmap[l]!=0; 
+      for (l=(vk&hmsize);
+           gk_cacheLoad(cache, (size_t)(&hmap[l])) && hmap[l]!=0;
            l=((l+1)&hmsize));
       hmap[l] = vk;
     }
@@ -424,11 +424,11 @@ double compute_tcstats(params_t *params, gk_graph_t *graph, int32_t *iperm)
       vi = adjncy[ej];
       for (ei=uxadj[vi]; gk_cacheLoad(cache, (size_t)(&adjncy[ei])) && adjncy[ei]>vj; ei++) {
         vk = adjncy[ei];
-        for (l=vk&hmsize; 
-             gk_cacheLoad(cache, (size_t)(&hmap[l])) && hmap[l]!=0 && hmap[l]!=vk; 
+        for (l=vk&hmsize;
+             gk_cacheLoad(cache, (size_t)(&hmap[l])) && hmap[l]!=0 && hmap[l]!=vk;
              l=((l+1)&hmsize));
         gk_cacheLoad(cache, (size_t)(&hmap[l]));
-        if (hmap[l] == vk) 
+        if (hmap[l] == vk)
           ntriangles++;
       }
     }
@@ -439,8 +439,8 @@ double compute_tcstats(params_t *params, gk_graph_t *graph, int32_t *iperm)
     for (ej=uxadj[vj], ejend=xadj[vj+1]; ej<ejend; ej++) {
       gk_cacheLoad(cache, (size_t)(&adjncy[ej]));
       vk = adjncy[ej];
-      for (l=(vk&hmsize); 
-           gk_cacheLoad(cache, (size_t)(&hmap[l])) && hmap[l]!=vk; 
+      for (l=(vk&hmsize);
+           gk_cacheLoad(cache, (size_t)(&hmap[l])) && hmap[l]!=vk;
            l=((l+1)&hmsize));
       hmap[l] = 0;
     }
@@ -459,19 +459,19 @@ double compute_tcstats(params_t *params, gk_graph_t *graph, int32_t *iperm)
 
 
 /*************************************************************************/
-/*! This function computes an increasing degree ordering 
+/*! This function computes an increasing degree ordering
 */
 /*************************************************************************/
 int32_t *reorder_degrees(params_t *params, gk_graph_t *graph)
 {
   int i, v, u, nvtxs, range;
-  ssize_t j, *xadj; 
+  ssize_t j, *xadj;
   int32_t *counts, *perm;
 
   nvtxs  = graph->nvtxs;
   xadj   = graph->xadj;
 
-  for (range=0, i=0; i<nvtxs; i++) 
+  for (range=0, i=0; i<nvtxs; i++)
     range = gk_max(range, xadj[i+1]-xadj[i]);
   range++;
 
@@ -499,7 +499,7 @@ int32_t *reorder_degrees(params_t *params, gk_graph_t *graph)
 int32_t *reorder_freqlpn(params_t *params, gk_graph_t *graph)
 {
   int32_t i, ii, k, nvtxs, maxlbl;
-  ssize_t j, *xadj; 
+  ssize_t j, *xadj;
   int32_t *adjncy, *labels, *freq, *perm;
   gk_i32kv_t *cand;
 
@@ -526,7 +526,7 @@ int32_t *reorder_freqlpn(params_t *params, gk_graph_t *graph)
             maxlbl = labels[adjncy[j]];
         }
       }
-      for (j=xadj[i]; j<xadj[i+1]; j++) 
+      for (j=xadj[i]; j<xadj[i+1]; j++)
         freq[labels[adjncy[j]]] = 0;
       labels[i] = maxlbl;
     }
@@ -559,7 +559,7 @@ int32_t *reorder_freqlpn(params_t *params, gk_graph_t *graph)
 int32_t *reorder_freqlpn_db(params_t *params, gk_graph_t *graph)
 {
   int32_t i, ii, k, nvtxs, maxlbl;
-  ssize_t j, *xadj; 
+  ssize_t j, *xadj;
   int32_t *adjncy, *labels, *freq, *perm, *dbucket;
   gk_i32kv_t *cand;
 
@@ -592,7 +592,7 @@ int32_t *reorder_freqlpn_db(params_t *params, gk_graph_t *graph)
             maxlbl = labels[adjncy[j]];
         }
       }
-      for (j=xadj[i]; j<xadj[i+1]; j++) 
+      for (j=xadj[i]; j<xadj[i+1]; j++)
         freq[labels[adjncy[j]]] = 0;
       labels[i] = maxlbl;
     }
@@ -623,7 +623,7 @@ int32_t *reorder_freqlpn_db(params_t *params, gk_graph_t *graph)
 int32_t *reorder_minlpn(params_t *params, gk_graph_t *graph)
 {
   int32_t i, ii, k, nvtxs, minlbl;
-  ssize_t j, *xadj; 
+  ssize_t j, *xadj;
   int32_t *adjncy, *labels, *perm;
   gk_i32kv_t *cand;
 
@@ -667,7 +667,7 @@ int32_t *reorder_minlpn(params_t *params, gk_graph_t *graph)
 
 /*************************************************************************/
 /*! This function re-orders the graph by:
-    - performing a fixed number of min-label propagation iterations 
+    - performing a fixed number of min-label propagation iterations
     - restricts that propagation to take place within similar degree buckets
       of vertices
     - locally renumbers the vertices with the same label
@@ -676,7 +676,7 @@ int32_t *reorder_minlpn(params_t *params, gk_graph_t *graph)
 int32_t *reorder_minlpn_db(params_t *params, gk_graph_t *graph)
 {
   int32_t i, ii, k, nvtxs, minlbl;
-  ssize_t j, *xadj; 
+  ssize_t j, *xadj;
   int32_t *adjncy, *labels, *perm, *dbucket;
   gk_i32kv_t *cand;
 
@@ -733,13 +733,13 @@ void print_init_info(params_t *params, gk_graph_t *graph)
   printf("*******************************************************************************\n");
   printf(" gkgraph\n\n");
   printf("Graph Information ----------------------------------------------------------\n");
-  printf(" input file=%s, [%d, %zd]\n", 
+  printf(" input file=%s, [%d, %zd]\n",
       params->infile, graph->nvtxs, graph->xadj[graph->nvtxs]);
 
   printf("\n");
   printf("Options --------------------------------------------------------------------\n");
   printf(" lnbits=%d, cnbits=%d, type=%d, niter=%d, lamda=%f, eps=%e\n",
-      params->lnbits, params->cnbits, params->type, params->niter, 
+      params->lnbits, params->cnbits, params->type, params->niter,
       params->lamda, params->eps);
 
   printf("\n");
@@ -832,7 +832,7 @@ params_t *parse_cmdline(int argc, char *argv[])
 
   params->infile  = gk_strdup(argv[gk_optind++]);
 
-  if (argc-gk_optind > 0) 
+  if (argc-gk_optind > 0)
     params->outfile = gk_strdup(argv[gk_optind++]);
   else
     params->outfile   = gk_strdup("gkgraph.out");
@@ -842,4 +842,3 @@ params_t *parse_cmdline(int argc, char *argv[])
 
   return params;
 }
-
