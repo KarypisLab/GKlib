@@ -32,8 +32,14 @@
 
 
 #ifdef __MSC__ 
-  #include "gk_ms_stdint.h"
-  #include "gk_ms_inttypes.h"
+  /* VS2010+ ships <stdint.h>/<inttypes.h>; the bundled polyfills are for older MSVC. */
+  #if _MSC_VER >= 1600
+    #include <stdint.h>
+    #include <inttypes.h>
+  #else
+    #include "gk_ms_stdint.h"
+    #include "gk_ms_inttypes.h"
+  #endif
   #include "gk_ms_stat.h"
   #include "win32/adapt.h"
 #else
