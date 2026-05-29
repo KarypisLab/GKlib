@@ -8,6 +8,22 @@
 
 #include <GKlib.h>
 
+/* mem_flush() evicts an array from the cache between timed runs using the x86
+   clflush/sfence instructions. These are exposed as the _mm_clflush/_mm_sfence
+   intrinsics on every x86 compiler (GCC, Clang, MSVC, ICC), so we use those
+   rather than GNU-specific inline asm. The intrinsics are x86-only, so the
+   routine is enabled only when an x86 target is detected (and NO_X86 is not
+   set); on other architectures mem_flush() compiles to a no-op. */
+#if (defined(__x86_64__) || defined(_M_X64) || \
+     defined(__i386__)   || defined(_M_IX86)) && !defined(NO_X86)
+  #define GK_HAVE_X86_FLUSH 1
+  #if defined(_MSC_VER)
+    #include <intrin.h>
+  #else
+    #include <immintrin.h>
+  #endif
+#endif
+
 /*************************************************************************/
 /*! Data structures for the code */
 /*************************************************************************/
@@ -66,25 +82,21 @@ void mem_flush(const void *p, unsigned int allocation_size);
 /**************************************************************************/
 void mem_flush(const void *p, unsigned int allocation_size)
 {
-#ifndef NO_X86 
+#ifdef GK_HAVE_X86_FLUSH
   const size_t cache_line = 64;
   const char *cp = (const char *)p;
-  size_t i = 0;
+  size_t i;
 
-  if (p == NULL || allocation_size <= 0)
+  if (p == NULL || allocation_size == 0)
     return;
 
-  for (i = 0; i < allocation_size; i += cache_line) {
-    __asm__ volatile("clflush (%0)\n\t"
-                 :
-                 : "r"(&cp[i])
-                 : "memory");
-  }
+  for (i = 0; i < allocation_size; i += cache_line)
+    _mm_clflush(&cp[i]);
 
-  __asm__ volatile("sfence\n\t"
-                :
-                :
-                : "memory");
+  _mm_sfence();
+#else
+  (void)p;
+  (void)allocation_size;
 #endif
 }
 
