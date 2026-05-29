@@ -11,6 +11,17 @@
 #ifndef _GK_MKRANDOM_H
 #define _GK_MKRANDOM_H
 
+/* Set GK_RNG_LEGACY_WIDTH to 1 to restore the historical behavior in which the
+   random sequence from randInRange()/randArrayPermute() depends on the width of
+   RNGT. By default (0), ranges that fit in 31 bits are drawn from gk_randint32()
+   regardless of width, so 32- and 64-bit integer builds produce identical
+   results (e.g. matching 32-bit and 64-bit METIS/ParMETIS partitions when all
+   quantities fit in 32 bits). gk_randint32() consumes the same generator state
+   as the width-specific rand(), so this does not desynchronize the RNG. */
+#ifndef GK_RNG_LEGACY_WIDTH
+#define GK_RNG_LEGACY_WIDTH 0
+#endif
+
 /*************************************************************************/\
 /*! The generator for the rand() related routines.  \
    \params RNGT  the datatype that defines the range of values over which\
@@ -47,6 +58,8 @@ RNGT FPRFX ## rand(void) \
 /**************************************************************************/\
 RNGT FPRFX ## randInRange(RNGT max) \
 {\
+  if (!GK_RNG_LEGACY_WIDTH && (uint64_t)max <= 0x7fffffffULL) \
+    return (RNGT)((RNGT)gk_randint32() % max); \
   return (RNGT)((FPRFX ## rand())%max); \
 }\
 \
