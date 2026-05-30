@@ -12,7 +12,20 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
+
+
+Third-party components
+----------------------
+
+In addition to the Apache-2.0 licensed code above, GKlib bundles a few files
+derived from third parties that retain their original licenses. The effective
+license of the combined work is:
+
+    Apache-2.0 AND LGPL-2.1-or-later AND BSD-3-Clause
+
+See LICENSES.md for the per-file inventory and the LICENSES/ directory for the
+full text of each additional license.
 

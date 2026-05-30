@@ -67,4 +67,12 @@ Cygwin, or WSL the `make` wrapper works the same as on Unix.
     make distclean 
          Performs clean and completely removes the build directory.
 
+## License
+
+GKlib is licensed under the Apache License, Version 2.0 (see `LICENSE.txt`).
+It also bundles a few files derived from third parties that retain their
+original licenses, so the effective license of the combined work is
+`Apache-2.0 AND LGPL-2.1-or-later AND BSD-3-Clause`. See `LICENSES.md` for the
+per-file inventory and the `LICENSES/` directory for the full license texts.
+
 
