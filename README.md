@@ -3,6 +3,7 @@ A library of various helper routines and frameworks used by many of the lab's
 software
 
 ## Build requirements
+ - C compiler, C11 compliant
  - CMake 3.10, found at http://www.cmake.org/, as well as GNU make. 
 
 Assuming that the above are available, two commands should suffice to 
