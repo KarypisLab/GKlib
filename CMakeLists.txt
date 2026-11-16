@@ -141,8 +141,50 @@ if(PCRE)
     message(WARNING "PCRE was requested, but is not available")
   endif()
 endif()
+# regcomp() and friends are in libc on glibc, macOS and the BSDs, but on some
+# systems regex.h belongs to a separate library that is not linked by default
+# (e.g. libsystre/libtre on MSYS2, libgnurx on MinGW). The header alone is not
+# enough to link, so confirm the functions are linkable and record the extra
+# library when one is required; otherwise fall back to GKlib's own regex
+# implementation (gkregex), which is also used when GKREGEX is set. The test
+# calls the functions rather than using check_symbol_exists(), which accepts a
+# macro, and TRE's regex.h defines regcomp etc. as macros for tre_regcomp etc.
+set(REGEX_LIBRARY "")
+set(GKLIB_REGEX_TEST_SOURCE "
+#include <stddef.h>
+#include <regex.h>
+int main(void) {
+  regex_t re; regmatch_t m[1]; char buf[8]; int rc;
+  rc = regcomp(&re, \"a\", REG_EXTENDED);
+  if (rc != 0) return (int)regerror(rc, &re, buf, sizeof(buf));
+  rc = regexec(&re, \"a\", 1, m, 0);
+  regfree(&re);
+  return rc;
+}")
 if(NOT HAVE_PCREPOSIX_H)
-  check_include_file(regex.h HAVE_REGEX_H)
+  if(GKREGEX)
+    set(HAVE_REGEX_H FALSE)
+  else()
+    check_include_file(regex.h HAVE_REGEX_H)
+  endif()
+  if(HAVE_REGEX_H)
+    check_c_source_compiles("${GKLIB_REGEX_TEST_SOURCE}" GKLIB_REGEX_IN_LIBC)
+    if(NOT GKLIB_REGEX_IN_LIBC)
+      foreach(lib systre tre gnurx regex)
+        set(CMAKE_REQUIRED_LIBRARIES ${lib})
+        check_c_source_compiles("${GKLIB_REGEX_TEST_SOURCE}"
+          GKLIB_REGEX_IN_LIB${lib})
+        unset(CMAKE_REQUIRED_LIBRARIES)
+        if(GKLIB_REGEX_IN_LIB${lib})
+          set(REGEX_LIBRARY ${lib})
+          break()
+        endif()
+      endforeach()
+      if(NOT REGEX_LIBRARY)
+        set(HAVE_REGEX_H FALSE)
+      endif()
+    endif()
+  endif()
   if(NOT HAVE_REGEX_H)
     set(USE_GKREGEX ON)
   endif()
@@ -207,7 +249,8 @@ target_compile_options(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC $<$<BOOL:${OpenMP_C_FOUND}>:OpenMP::OpenMP_C>
-         ${EXECINFO_LIBRARY})
+         ${EXECINFO_LIBRARY}
+         ${REGEX_LIBRARY})
 
 #-------------------------------------------------------------------------------
 # APPS configuration
